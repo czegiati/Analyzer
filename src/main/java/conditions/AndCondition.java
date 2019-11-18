@@ -14,4 +14,5 @@ public class AndCondition extends AbstractCondition {
         }
         return true;
     }
+
 }
