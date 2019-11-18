@@ -32,4 +32,4 @@ Example for the xml:
 </OR>
 ```
 
-It will return the AbstractCondition class, and you can get its value by using the getValue() method.
+It will return an AbstractCondition object, and you can get its value by using the getValue() method.
