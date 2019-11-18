@@ -22,12 +22,13 @@ name - You must give it a name in order to identify it
 
 
 Example for the xml:
-<OR>
+"<OR>
     <TRUE/>
     <FALSE>
     <NOT>
       <TRUE/>
     </NOT>
 </OR>
+"
 
 It will return the AbstractCondition class, and you can get its value by using the getValue() method.
