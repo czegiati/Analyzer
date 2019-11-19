@@ -1,8 +1,6 @@
-package AnalyzerImpl;
+package AnalyzerImpl.Condition;
 
-import condition.AbstractCondition;
 import core.Analyzer;
-import condition.Condition;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,5 +22,10 @@ public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
     @Override
     public Class<Condition> getAnnotationClass() {
         return Condition.class;
+    }
+
+    @Override
+    public Class<AbstractCondition> getAbstractClass() {
+        return AbstractCondition.class;
     }
 }

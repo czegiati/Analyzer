@@ -1,7 +1,5 @@
 package core;
 
-import condition.AbstractCondition;
-import condition.Condition;
 import eu.infomas.annotation.AnnotationDetector;
 
 import java.io.IOException;
@@ -20,10 +18,11 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
             @Override
             public void reportTypeAnnotation(Class<? extends Annotation> aClass, String s) {
                 try {
-                    if(!AbstractCondition.class.isAssignableFrom(Class.forName(s))) throw new IllegalArgumentException("Classes that uses @Condition annotation should extend Abstract Condition!");
+                    if(!getAbstractClass().isAssignableFrom(Class.forName(s))) throw new IllegalArgumentException("Classes that uses @Condition annotation should extend Abstract Condition!");
 
                     String name =getName(Class.forName(s));
                     getAbstractClassMap().put(name, (Class<AbstractClass>) Class.forName(s));
+
                 } catch (ClassNotFoundException e) {
                 } catch (IllegalAccessException e) {
                 } catch (InvocationTargetException e) {
@@ -65,6 +64,8 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
     boolean acceptAnnotationOn(Object... objects);
 
     Class<Anno> getAnnotationClass();
+
+    Class<AbstractClass> getAbstractClass();
 
     default public String getName(Class<?> class0) throws InvocationTargetException, IllegalAccessException {
         Annotation annotation = class0.getDeclaredAnnotation(getAnnotationClass());

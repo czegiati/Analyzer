@@ -7,14 +7,14 @@ public interface AbstractObject {
 
     List<AbstractObject> subObjs = new ArrayList<>();
 
-    default public List<AbstractObject> getSubObjects(){
+    default public List<? extends AbstractObject> getSubObjects(){
         return  subObjs;
     }
 
     default public void setSubObjects(List<? extends AbstractObject> objs){
         for(AbstractObject abs: objs){
-            getSubObjects().add(abs);
+           subObjs.add(abs);
         }
     }
-    public abstract boolean getValue();
+    public abstract Object getValue();
 }

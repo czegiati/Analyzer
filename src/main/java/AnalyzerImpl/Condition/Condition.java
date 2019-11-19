@@ -1,4 +1,4 @@
-package condition;
+package AnalyzerImpl.Condition;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

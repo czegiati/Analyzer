@@ -1,8 +1,7 @@
 package parsers;
 
-
-import AnalyzerImpl.Condition.AbstractCondition;
-import AnalyzerImpl.Condition.MyAnalyzer;
+import core.AbstractObject;
+import core.Analyzer;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -13,15 +12,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XMLParser {
+public class XMLMetaParser {
 
-    public static AbstractCondition parse(String inputPath){
+    public static AbstractObject parse(String inputPath,Analyzer analyzer){
         try {
             File inputFile = new File(inputPath);
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(inputFile);
             Element root = document.getRootElement();
-            return create(root);
+            return parse(root,analyzer);
         } catch(JDOMException e) {
             e.printStackTrace();
         } catch(IOException ioe) {
@@ -30,40 +29,22 @@ public class XMLParser {
         throw new IllegalArgumentException("Oops, something in the file was wrong!");
     }
 
-    private static AbstractCondition create(Element root){
-        List<AbstractCondition> children=new ArrayList<>();
+    private static AbstractObject create(Element root, Analyzer analyzer){
+        List<AbstractObject> children=new ArrayList<>();
         for(Element child:root.getChildren()){
-            children.add(create(child));
+            children.add(create(child,analyzer));
 
         }
-        MyAnalyzer a=new MyAnalyzer();
-        return a.createInstanceOf(root.getName(),children);
+        return analyzer.createInstanceOf(root.getName(),children);
     }
 
-    public static AbstractCondition parse(String input,String location){
-        try {
-            File inputFile = new File(input);
-            SAXBuilder saxBuilder = new SAXBuilder();
-            Document document = saxBuilder.build(inputFile);
-            Element root = document.getRootElement();
-            if(root.getName().equals(getFirstTag(location)))
-            return create(getElementAt(root,cutPath(location)));
-            else
-                throw new IllegalArgumentException("Wrong root element!");
-        } catch(JDOMException e) {
-            e.printStackTrace();
-        } catch(IOException ioe) {
-            ioe.printStackTrace();
-        }
-        throw new IllegalArgumentException("Oops, something in the file was wrong!");
+
+    public static AbstractObject parse(Element element,Analyzer analyzer){
+        return create(element,analyzer);
     }
 
-    public static AbstractCondition parse(Element element){
-        return create(element);
-    }
-
-    public static boolean get(Element element) {
-       return create(element).getValue();
+    public static Object get(Element element,Analyzer analyzer) {
+       return create(element,analyzer).getValue();
     }
 
     private static Element getElementAt(Element root,String path){
