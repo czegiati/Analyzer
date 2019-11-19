@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -46,7 +47,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
 
     default AbstractClass createInstanceOf(String name, List<AbstractClass> subobjs){
         if(!getAbstractClassMap().containsKey(name)) throw new IllegalArgumentException("Unknown operation: "+name);
-        if(!acceptAnnotationOn()) throw new IllegalArgumentException("The annotation was rejected!");
+        if(!acceptAnnotationOn(this.getAbstractClassMap().get(name).getAnnotation(getAnnotationClass()),this.getAbstractClassMap().get(name),subobjs)) throw new IllegalArgumentException("The annotation was rejected!");
         Object cond0 = null;
         try {
             cond0 = getAbstractClassMap().get(name).newInstance();
@@ -61,7 +62,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
 
     Map<String,Class<AbstractClass>> getAbstractClassMap();
 
-    boolean acceptAnnotationOn(Object... objects);
+    boolean acceptAnnotationOn(Annotation annotation,Class<?> class0, List<AbstractClass> subobjs);
 
     Class<Anno> getAnnotationClass();
 

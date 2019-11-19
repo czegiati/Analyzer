@@ -1,4 +1,4 @@
-package AnalyzerImpl.Condition;
+package AnalyzerImpl.Number;
 
 import core.Analyzer;
 
@@ -8,17 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
+public class NumberAnalyzer implements Analyzer<Number,AbstractNumber> {
 
-    public Map<String,Class<AbstractCondition>> classmap=new HashMap<>();
+    public Map<String,Class<AbstractNumber>> map=new HashMap<>();
 
     @Override
-    public Map<String, Class<AbstractCondition>> getAbstractClassMap() {
-        return classmap;
+    public Map<String, Class<AbstractNumber>> getAbstractClassMap() {
+        return map;
     }
 
     @Override
-    public boolean acceptAnnotationOn(Annotation annotation, Class<?> class0, List<AbstractCondition> subobjs) {
+    public boolean acceptAnnotationOn(Annotation annotation, Class<?> class0, List<AbstractNumber> subobjs) {
         Integer min=null;
         Integer max=null;
         int argn=subobjs.size();
@@ -35,13 +35,14 @@ public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
         return (min<=argn && max>=argn) || (min<=argn && max==-1);
     }
 
+
     @Override
-    public Class<Condition> getAnnotationClass() {
-        return Condition.class;
+    public Class getAnnotationClass() {
+        return Number.class;
     }
 
     @Override
-    public Class<AbstractCondition> getAbstractClass() {
-        return AbstractCondition.class;
+    public Class getAbstractClass() {
+        return AbstractNumber.class;
     }
 }
