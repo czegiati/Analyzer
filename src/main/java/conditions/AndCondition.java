@@ -1,7 +1,7 @@
 package conditions;
 
-import core.AbstractCondition;
-import core.Condition;
+import condition.AbstractCondition;
+import condition.Condition;
 
 @Condition(name="AND")
 public class AndCondition extends AbstractCondition {

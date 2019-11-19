@@ -1,7 +1,7 @@
 package conditions;
 
-import core.AbstractCondition;
-import core.Condition;
+import condition.AbstractCondition;
+import condition.Condition;
 
 @Condition(name="NOT",max=1,min=1)
 public class NotCondition extends AbstractCondition {

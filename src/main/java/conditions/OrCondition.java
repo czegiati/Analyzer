@@ -1,7 +1,7 @@
 package conditions;
 
-import core.AbstractCondition;
-import core.Condition;
+import condition.AbstractCondition;
+import condition.Condition;
 
 @Condition(name="OR")
 public class OrCondition extends AbstractCondition {

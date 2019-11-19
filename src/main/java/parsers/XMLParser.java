@@ -1,7 +1,7 @@
 package parsers;
 
-import core.AbstractCondition;
-import core.ConditionAnalyzer;
+import condition.AbstractCondition;
+import condition.ConditionAnalyzer;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -56,6 +56,14 @@ public class XMLParser {
         throw new IllegalArgumentException("Oops, something in the file was wrong!");
     }
 
+    public static AbstractCondition parse(Element element){
+        return create(element);
+    }
+
+    public static boolean get(Element element) {
+       return create(element).getValue();
+    }
+
     private static Element getElementAt(Element root,String path){
         Element current=root;
        while(path!="")
@@ -74,7 +82,7 @@ public class XMLParser {
         return current;
     }
 
-    public static String getFirstTag(String string){
+    private static String getFirstTag(String string){
         int i=0;
         boolean loopbroken=false;
         loop: while(i!=string.length()-1 ){
@@ -90,7 +98,7 @@ public class XMLParser {
         return string.substring(0,i);
     }
 
-    public static String cutPath(String s){
+    private static String cutPath(String s){
         int i=0;
         boolean loopbroken=false;
         loop: while(i!=s.length()-1 ){

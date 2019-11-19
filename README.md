@@ -1,8 +1,7 @@
 
+Analyzer 1.1
 1,What is it for?
 
-This is a simple project, that makes the user capable of reading boolean expressions from a xml file. It has some basic functions, but it is easily expandable.
-Basic functions: AND,OR,NOT,TRUE,FALSE.
 
 
 

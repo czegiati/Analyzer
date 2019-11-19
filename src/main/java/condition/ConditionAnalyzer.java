@@ -1,4 +1,4 @@
-package core;
+package condition;
 
 import eu.infomas.annotation.AnnotationDetector;
 
