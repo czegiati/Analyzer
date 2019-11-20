@@ -1,6 +1,8 @@
 
-<p1><b>Analyzer 1.2.1</b></p1>
+<p1><b>ANALYZER 1.2.1</b></p1>
+
 1,What is it for?
+
 Implementing the Analyzer interface, you can easily define tags, and assign a function to them.
 (Currently it only works for XML-files, but it is going to get extended in the future.)
 
