@@ -5,10 +5,8 @@ import eu.infomas.annotation.AnnotationDetector;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -109,8 +107,6 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
     }
 
     default void defineConst(String s,Object o, Const c){
-        System.out.println(s+" is "+o);
         c.put(s,o);
-        System.out.println(c.get(s));
     }
 }
