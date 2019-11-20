@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class NumberAnalyzer implements Analyzer<Number,AbstractNumber> {
 
-    public Map<String,Class<AbstractNumber>> map=new HashMap<>();
+    public Map<String, Class<AbstractNumber>> map = new HashMap<>();
 
     @Override
     public Map<String, Class<AbstractNumber>> getAbstractClassMap() {
@@ -19,12 +19,12 @@ public class NumberAnalyzer implements Analyzer<Number,AbstractNumber> {
 
     @Override
     public boolean acceptAnnotationOn(Annotation annotation, Class<?> class0, List<AbstractNumber> subobjs) {
-        Integer min=null;
-        Integer max=null;
-        int argn=subobjs.size();
+        Integer min = null;
+        Integer max = null;
+        int argn = subobjs.size();
         try {
-            min= (int) annotation.getClass().getMethod("min").invoke(annotation);
-            max= (int) annotation.getClass().getMethod("max").invoke(annotation);
+            min = (int) annotation.getClass().getMethod("min").invoke(annotation);
+            max = (int) annotation.getClass().getMethod("max").invoke(annotation);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
@@ -32,7 +32,7 @@ public class NumberAnalyzer implements Analyzer<Number,AbstractNumber> {
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
-        return (min<=argn && max>=argn) || (min<=argn && max==-1);
+        return (min <= argn && max >= argn) || (min <= argn && max == -1);
     }
 
 
@@ -45,4 +45,5 @@ public class NumberAnalyzer implements Analyzer<Number,AbstractNumber> {
     public Class getAbstractClass() {
         return AbstractNumber.class;
     }
+
 }

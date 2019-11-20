@@ -2,7 +2,7 @@ package parsers;
 
 
 import AnalyzerImpl.Condition.AbstractCondition;
-import AnalyzerImpl.Condition.MyAnalyzer;
+import AnalyzerImpl.Condition.ConditionAnalyzer;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -36,7 +36,7 @@ public class XMLParser {
             children.add(create(child));
 
         }
-        MyAnalyzer a=new MyAnalyzer();
+        ConditionAnalyzer a=new ConditionAnalyzer();
         return a.createInstanceOf(root.getName(),children);
     }
 

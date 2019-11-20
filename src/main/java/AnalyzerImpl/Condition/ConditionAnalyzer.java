@@ -8,7 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
+public class ConditionAnalyzer implements Analyzer<Condition, AbstractCondition> {
 
     public Map<String,Class<AbstractCondition>> classmap=new HashMap<>();
 
@@ -44,4 +44,6 @@ public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
     public Class<AbstractCondition> getAbstractClass() {
         return AbstractCondition.class;
     }
+
+
 }
