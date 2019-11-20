@@ -154,7 +154,9 @@ Then you can use getValue to give it your desired behaviour.
                 System.out.println(XMLMetaParser.parse("xml.xml", analyzer).getValue());
     }
 ```
+
     xml.xml is:
+
         ```xml
         <OR>
             <TRUE/>
@@ -220,9 +222,13 @@ Then in main:
 
 
     }
-    ```
+```
+You can define the constants by  analyzer.defineConst(String name_of_const,Object object_that_gets_returned,Const an_instant_of_your_const);
+Note: currently you can only use your Consts by sticking '-name-???' into the end of your constant (in this example the class that implements Const is annotated like this: @Number(name="CONST",max=0)).
+ ??? means the name_of_const
 
 ((12+20)*10) in xml.xml:
+
         ```xml
        <MUL>
            <ADD>
@@ -232,5 +238,6 @@ Then in main:
            <CONST-name-10></CONST-name-10>
        </MUL>
         ```
+
 Output: 320
 
