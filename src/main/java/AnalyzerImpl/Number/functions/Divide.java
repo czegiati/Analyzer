@@ -7,7 +7,7 @@ import AnalyzerImpl.Number.Number;
 public class Divide extends AbstractNumber {
     @Override
     public Integer getValue() {
-        return getSubObjects().get(0).getValue()/getSubObjects().get(1).getValue();
+        return(Integer) getSubObjects().get(0).getValue()/ (Integer) getSubObjects().get(1).getValue();
 
     }
 }

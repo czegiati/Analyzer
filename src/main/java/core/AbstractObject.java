@@ -3,11 +3,16 @@ package core;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface AbstractObject {
+public abstract class AbstractObject<T> {
 
-    public List<? extends AbstractObject> getSubObjects();
+    List<AbstractObject> objects=new ArrayList<>();
+    public List<AbstractObject> getSubObjects(){
+        return objects;
+    }
 
-    public void setSubObjects(List<? extends AbstractObject> objs);
+    public void setSubObjects(List<AbstractObject> objs){
+        this.objects=objs;
+    }
 
-    public abstract Object getValue();
+    public abstract T getValue();
 }
