@@ -1,5 +1,5 @@
 
-Analyzer 1.2.1
+<p1><b>Analyzer 1.2.1</b></p1>
 1,What is it for?
 Implementing the Analyzer interface, you can easily define tags, and assign a function to them.
 (Currently it only works for XML-files, but it is going to get extended in the future.)
@@ -23,7 +23,7 @@ and the AClass is an Abstract class that implements AbstractObject)
 
 
 AnalyzerImplementation example:
-
+```
 public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
     @Override
     public Map<String, Class<AbstractCondition>> getAbstractClassMap() {
@@ -45,10 +45,11 @@ public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
         return AbstractCondition.class;
     }
 }
+```
 
 
 Note: acceptAnnotationOn() can be used to implement restrictions on the functions (should return true when you accept ) example:
-
+```
 @Override
  public boolean acceptAnnotationOn(Annotation annotation, Class<?> class0, List<AbstractCondition> subobjs) {
      Integer min=null;
@@ -66,27 +67,28 @@ Note: acceptAnnotationOn() can be used to implement restrictions on the function
         }
         return (min<=argn && max>=argn) || (min<=argn && max==-1);
 }
-
+```
 
 Note: You should define the variables,you want to use as restrictions (in here the min and max methods of the Annotation), in the annotation:
-
+```
 public @interface Condition {
     int min() default 0;
     int max() default -1;
     String name();
 }
-
+```
 
 Next is the getAbstractClassMap(), you should create a Map field in the class, and return it with the getAbstractClassMap, that you override:
-
+```
     public Map<String,Class<AbstractCondition>> classmap=new HashMap<>();
+
 @Override
     public Map<String, Class<YourAbstractClass>> getAbstractClassMap() {
         return classmap;
     }
-
+```
 Next is the getAnnotationClass and getAbstractClass, they should return yourAnnotation.class and yourAbstractClass.class:
-
+```
 @Override
     public Class<Condition> getAnnotationClass() {
         return Condition.class;
@@ -96,10 +98,10 @@ Next is the getAnnotationClass and getAbstractClass, they should return yourAnno
     public Class<AbstractCondition> getAbstractClass() {
         return AbstractCondition.class;
     }
-
+```
 
 The implementation of YourAbstractObject should look like this:
-
+```
 public abstract class MyAbstract implements AbstractObject {
     List<MyAbstract> list=new ArrayList<>();
 
@@ -116,13 +118,13 @@ public abstract class MyAbstract implements AbstractObject {
     @Override
     public abstract XYZ getValue();
 }
-
+```
 In this situation XYZ is supposed to represent the Object, that you want to return. The Condition and number implementation packages (in AnalyzerImpl.Condition and AnalyzerImpl.Number) return a Boolean and an Integer.
-
 You should also create a list as shown example.
 
 
 After this, you can start implementing your own functions:
+```
 @Condition(name="AND")
 public class AndCondition extends AbstractCondition {
 
@@ -136,20 +138,20 @@ public class AndCondition extends AbstractCondition {
     }
 
 }
-
+```
 You register the class as a function by Implementing your own AbstractClass an and annotating it with @YourAnnotation, and giving it a name (in this example "AND").
 Then you can use getValue to give it your desired behaviour.
 
 
 
   And finally use it:
-
+```
     public static void main(String[] args) {
          Analyzer analyzer = new ConditionAnalyzer();
                 analyzer.annotationDetect();
                 System.out.println(XMLMetaParser.parse("xml.xml", analyzer).getValue());
     }
-
+```
     xml.xml is:
         ```xml
         <OR>
@@ -162,9 +164,10 @@ Then you can use getValue to give it your desired behaviour.
         ```
 
 
-<p1>NEW FEATURES IN 1.2 </p1>
+<p1><b>NEW FEATURES IN 1.2 </b></p1>
 
 You can implement in your function class the Const interface:
+```
 @Number(name="CONST",min=0,max=0)
 public class ConstNum extends AbstractNumber implements Const {
 
@@ -198,10 +201,12 @@ public class ConstNum extends AbstractNumber implements Const {
     }
 
 }
+```
 
 When implementing Const you should create a static Map<String,The type getValueReturns>, and use it as shown in this example.
 
 Then in main:
+```
     public static void main(String[] args) throws InvocationTargetException, IllegalAccessException, InstantiationException {
 
         Analyzer analyzer = new NumberAnalyzer();
@@ -213,6 +218,7 @@ Then in main:
 
 
     }
+    ```
 
 ((12+20)*10) in xml.xml:
         ```xml
