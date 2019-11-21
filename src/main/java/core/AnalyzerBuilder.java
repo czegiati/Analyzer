@@ -1,9 +1,8 @@
 package core;
 
-import javax.lang.model.element.TypeParameterElement;
+import core.AttributeHandler.AttributeHandler;
+
 import java.lang.annotation.Annotation;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
