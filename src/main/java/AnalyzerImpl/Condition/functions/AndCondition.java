@@ -10,9 +10,9 @@ public class AndCondition extends AbstractCondition {
 
     @Override
     public Boolean getValue() {
-        for(AbstractObject cond:this.getSubObjects())
+        for(AbstractCondition cond:this.getSubObjects())
         {
-            if(!(Boolean)cond.getValue()) return false;
+            if(!cond.getValue()) return false;
         }
         return true;
     }

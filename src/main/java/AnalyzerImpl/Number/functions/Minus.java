@@ -7,6 +7,6 @@ import AnalyzerImpl.Number.Number;
 public class Minus extends AbstractNumber {
     @Override
     public Integer getValue() {
-        return (Integer) getSubObjects().get(0).getValue()-(Integer) getSubObjects().get(1).getValue();
+        return  getSubObjects().get(0).getValue()- getSubObjects().get(1).getValue();
     }
 }

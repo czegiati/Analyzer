@@ -8,6 +8,6 @@ import AnalyzerImpl.Condition.Condition;
 public class NotCondition extends AbstractCondition {
     @Override
     public Boolean getValue() {
-        return (Boolean) getSubObjects().get(0).getValue();
+        return  getSubObjects().get(0).getValue();
     }
 }

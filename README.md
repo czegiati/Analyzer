@@ -23,7 +23,6 @@ For this example we have created 4 classes (TRUE,FALSE,NOT,OR), that are being u
 Implement the Analyzer<Annotation,AClass> interface (Annotation is the annotation defined by you(int must contain a 'name()' attribute)
 and the AClass is an Abstract class that implements AbstractObject)
 
-
 AnalyzerImplementation example:
 ```
 public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
@@ -50,7 +49,18 @@ public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
 ```
 
 
-Note: acceptAnnotationOn() can be used to implement restrictions on the functions (should return true when you accept ) example:
+ OR use the AnalyzerBuilder:
+
+ ```
+ Analyzer analyzer=new AnalyzerBuilder()
+                 .setAccepter((annotation, class0, subobjs) -> true) // the accepter does the same as the AcceptAnnotationOn()
+                 .setAbstractClass(AbstractNumber.class) //Here goes your class extending AbstractObject
+                 .setAnnotationClass(Number.class) //here goes your annotation class
+                 .build();
+ ```
+
+
+acceptAnnotationOn() can be used to implement restrictions on the functions (should return true when you accept ) example:
 ```
 @Override
  public boolean acceptAnnotationOn(Annotation annotation, Class<?> class0, List<AbstractCondition> subobjs) {
@@ -104,25 +114,19 @@ Next is the getAnnotationClass and getAbstractClass, they should return yourAnno
 
 The implementation of YourAbstractObject should look like this:
 ```
-public abstract class MyAbstract implements AbstractObject {
-    List<MyAbstract> list=new ArrayList<>();
+public abstract class MyAbstract extends AbstractObject<MyObject,MyAbstract> {
 
-    @Override
-    public List<? extends AbstractObject> getSubObjects() {
-        return list;
-    }
-
-    @Override
-    public void setSubObjects(List<? extends AbstractObject> objs) {
-        this.list=objs;
-    }
-
-    @Override
-    public abstract XYZ getValue();
 }
 ```
-In this situation XYZ is supposed to represent the Object, that you want to return. The Condition and number implementation packages (in AnalyzerImpl.Condition and AnalyzerImpl.Number) return a Boolean and an Integer.
-You should also create a list as shown example.
+MyObject is the object that gets returned from every classes getValue() extending MyAbstract.
+For example the AbstractNumber's look like this:
+
+```
+public abstract class AbstractNumber extends AbstractObject<Integer,AbstractNumber> {
+
+}
+```
+
 
 
 After this, you can start implementing your own functions:

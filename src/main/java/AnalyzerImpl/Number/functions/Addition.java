@@ -10,9 +10,9 @@ public class Addition extends AbstractNumber {
     @Override
     public Integer getValue() {
         int num=0;
-        for(AbstractObject i:this.getSubObjects())
+        for(AbstractNumber i:this.getSubObjects())
         {
-            num+=(Integer) i.getValue();
+            num+=i.getValue();
         }
         return num;
     }

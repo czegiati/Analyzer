@@ -10,9 +10,9 @@ public class OrCondition extends AbstractCondition {
 
     @Override
     public Boolean getValue() {
-        for(AbstractObject cond:this.getSubObjects())
+        for(AbstractCondition cond:this.getSubObjects())
         {
-            if((Boolean) cond.getValue()) return true;
+            if( cond.getValue()) return true;
         }
         return false;
     }

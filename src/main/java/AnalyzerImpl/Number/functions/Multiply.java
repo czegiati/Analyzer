@@ -9,8 +9,8 @@ public class Multiply extends AbstractNumber {
     @Override
     public Integer getValue() {
         int num=1;
-        for(AbstractObject a:getSubObjects()){
-            num*=(Integer) a.getValue();
+        for(AbstractNumber a:getSubObjects()){
+            num*= a.getValue();
         }
         return num;
     }

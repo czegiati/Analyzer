@@ -33,8 +33,6 @@ public class AnalyzerBuilder {
     }
 
     public Analyzer build(){
-        TypeVariable<Class<Analyzer>>[] a=Analyzer.class.getTypeParameters();
-        System.out.println(a[0].getName()+" "+a[1].getName());
 
         return new Analyzer() {
             public Map<String,Class> map=new HashMap<>();
