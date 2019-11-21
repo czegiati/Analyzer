@@ -2,6 +2,7 @@ package parsers;
 
 import core.AbstractObject;
 import core.Analyzer;
+import org.jdom2.Attribute;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
@@ -10,7 +11,9 @@ import org.jdom2.input.SAXBuilder;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class XMLMetaParser {
 
@@ -30,12 +33,17 @@ public class XMLMetaParser {
     }
 
     private static AbstractObject create(Element root, Analyzer analyzer){
+        List<Attribute> list=root.getAttributes();
+        Map<String,String> map=new HashMap<>();
+        for(Attribute a: list){
+            map.put(a.getName(),a.getValue());
+        }
         List<AbstractObject> children=new ArrayList<>();
         for(Element child:root.getChildren()){
             children.add(create(child,analyzer));
 
         }
-        return analyzer.createInstanceOf(root.getName(),children);
+        return analyzer.createInstanceOf(root.getName(),children,map);
     }
 
 

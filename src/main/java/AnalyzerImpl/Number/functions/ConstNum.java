@@ -4,39 +4,16 @@ import AnalyzerImpl.Number.AbstractNumber;
 import AnalyzerImpl.Number.Number;
 import core.Const;
 
-import java.util.HashMap;
-import java.util.Map;
-
-@Number(name="CONST",min=0,max=0)
+@Number(name="CONST",max=0)
 public class ConstNum extends AbstractNumber implements Const {
-
-    private static Map<String,Integer> map=new HashMap<>();
-    private String name;
-
+    Integer value;
     @Override
     public Integer getValue() {
-        return map.get(name);
+        return value;
     }
 
     @Override
-    public String getName() {
-        return name;
+    public void setValue(Object value) {
+        this.value=(Integer)value;
     }
-
-    @Override
-    public void setName(String name) {
-        this.name=name;
-    }
-
-    @Override
-    public void put(String s, Object o) {
-        this.name=s;
-        map.put(s,(Integer)o);
-    }
-
-    @Override
-    public Object get(String name) {
-        return map.get(name);
-    }
-
 }

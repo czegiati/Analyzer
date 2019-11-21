@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class AnalyzerBuilder {
     private AnnotationAccepter accepter;
+    private AttributeHandler attributeHandler;
     private Class<? extends Annotation> AnnotationClass=null;
     private Class<? extends AbstractObject> AbstractClass=null;
 
@@ -32,6 +33,10 @@ public class AnalyzerBuilder {
         return this;
     }
 
+    public AnalyzerBuilder setAttributeHandler(AttributeHandler attributeHandler){
+        this.attributeHandler=attributeHandler;
+        return this;
+    }
     public Analyzer build(){
 
         return new Analyzer() {
@@ -54,6 +59,11 @@ public class AnalyzerBuilder {
             @Override
             public Class getAbstractClass() {
                 return AbstractClass;
+            }
+
+            @Override
+            public void handleAttributeDependantObjects(Object cond0, String name, Map attributes) {
+                attributeHandler.handle(cond0,name,attributes,getAbstractClassMap());
             }
         };
     }

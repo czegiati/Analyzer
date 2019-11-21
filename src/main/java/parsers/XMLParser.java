@@ -37,7 +37,7 @@ public class XMLParser {
 
         }
         ConditionAnalyzer a=new ConditionAnalyzer();
-        return a.createInstanceOf(root.getName(),children);
+        return a.createInstanceOf(root.getName(),children,null);
     }
 
     public static AbstractCondition parse(String input,String location){

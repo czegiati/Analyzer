@@ -1,6 +1,5 @@
 package core;
 
-import AnalyzerImpl.Number.functions.ConstNum;
 import eu.infomas.annotation.AnnotationDetector;
 
 import java.io.IOException;
@@ -44,44 +43,23 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
 
     }
 
-    default AbstractClass createInstanceOf(String name, List<AbstractClass> subobjs){
-        if(name.contains("-name-"))
-        {
-            int end=0;
-            loop: for(char c:name.toCharArray())
-            {
-                if(c=='-')
-                {
-                    break loop;
-                }
-                end++;
-            }
-            Object cond0 = null;
-            try {
-                cond0 = getAbstractClassMap().get(name.substring(0,end)).newInstance();
-                ((Const)cond0).setName(name.substring(name.lastIndexOf("-name-")+6));
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-            if(((Const)cond0).get((String)name.substring(name.lastIndexOf("-name-")+6))==null) throw new IllegalArgumentException("CONST "+ name.substring(name.lastIndexOf("-name-")+6)+" is not defined!");
-            ( (AbstractClass) cond0).setSubObjects(subobjs);
-            return (AbstractClass) cond0;
-
-        }
-
+    default AbstractClass createInstanceOf(String name, List<AbstractClass> subobjs,Map<String,String> map){
         if(!getAbstractClassMap().containsKey(name)) throw new IllegalArgumentException("Unknown operation: "+name);
+
         if(!acceptAnnotationOn(this.getAbstractClassMap().get(name).getAnnotation(getAnnotationClass()),this.getAbstractClassMap().get(name),subobjs)) throw new IllegalArgumentException("The annotation was rejected!");
+
         Object cond0 = null;
         try {
-            cond0 = getAbstractClassMap().get(name).newInstance();
+             cond0 = getAbstractClassMap().get(name).newInstance();
         } catch (InstantiationException e) {
             e.printStackTrace();
         } catch (IllegalAccessException e) {
             e.printStackTrace();
         }
         ( (AbstractClass) cond0).setSubObjects(subobjs);
+
+        handleAttributeDependantObjects(cond0,name,map);
+
         return (AbstractClass) cond0;
     }
 
@@ -106,7 +84,31 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         throw new IllegalArgumentException("Your annotation should have a 'name' field!");
     }
 
-    default void defineConst(String s,Object o, Const c){
+    default void defineConst(String s,Object o, Variable c){
         c.put(s,o);
+    }
+
+    /**
+     * Handles classes, that are dependant on attributes!
+     */
+    default void handleAttributeDependantObjects(Object cond0,String name,Map<String,String> attributes){
+
+        if(doesClassDeriveFrom(getAbstractClassMap().get(name),Variable.class))
+        {
+            if(attributes.containsKey("name"))
+            ((Variable) cond0).setName(attributes.get("name"));
+            else throw new IllegalArgumentException("VAR should have a name attribute!");
+        }
+
+        if(doesClassDeriveFrom(getAbstractClassMap().get(name),Const.class))
+        {
+            if (attributes.containsKey("value"))
+                ((Const) cond0).setValue(Integer.parseInt(attributes.get("value")));
+            else throw new IllegalArgumentException("CONST should have a value attribute!");
+        }
+    }
+
+    static boolean doesClassDeriveFrom(Class subclass,Class<?> superclass){
+        return superclass.isAssignableFrom(subclass);
     }
 }
