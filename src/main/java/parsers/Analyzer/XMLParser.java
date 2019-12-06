@@ -1,18 +1,6 @@
 package parsers.Analyzer;
 
 
-import AnalyzerImpl.Condition.AbstractCondition;
-import AnalyzerImpl.Condition.ConditionAnalyzer;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
-import org.jdom2.input.SAXBuilder;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 public class XMLParser {
 
    /* public static AbstractCondition parse(String inputPath){

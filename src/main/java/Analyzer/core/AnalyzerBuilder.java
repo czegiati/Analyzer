@@ -35,9 +35,10 @@ public class AnalyzerBuilder {
             }
 
             @Override
-            public boolean acceptAnnotationOn(Annotation a, Class c, List o) {
-                return accepter.accept(a,c,o);
+            public boolean acceptAnnotationOn(Map annotation, Class class0, List subobjs) {
+                return accepter.accept(annotation,class0,subobjs);
             }
+
 
             @Override
             public Class getAnnotationClass() {
