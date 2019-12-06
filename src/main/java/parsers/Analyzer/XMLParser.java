@@ -1,4 +1,4 @@
-package parsers;
+package parsers.Analyzer;
 
 
 import AnalyzerImpl.Condition.AbstractCondition;
@@ -15,7 +15,7 @@ import java.util.List;
 
 public class XMLParser {
 
-    public static AbstractCondition parse(String inputPath){
+   /* public static AbstractCondition parse(String inputPath){
         try {
             File inputFile = new File(inputPath);
             SAXBuilder saxBuilder = new SAXBuilder();
@@ -114,6 +114,6 @@ public class XMLParser {
         }
         if(!loopbroken) return s.substring(i,s.length()+1);
         return s.substring(i+1,s.length());
-    }
+    }*/
 
 }

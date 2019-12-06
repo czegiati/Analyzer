@@ -1,11 +1,8 @@
-package parsers;
+package parsers.Analyzer;
 
-import core.AbstractObject;
-import core.Analyzer;
-import org.jdom2.Attribute;
-import org.jdom2.Document;
-import org.jdom2.Element;
-import org.jdom2.JDOMException;
+import Analyzer.core.AbstractObject;
+import Analyzer.core.Analyzer;
+import org.jdom2.*;
 import org.jdom2.input.SAXBuilder;
 
 import java.io.File;
@@ -33,17 +30,41 @@ public class XMLMetaParser {
     }
 
     private static AbstractObject create(Element root, Analyzer analyzer){
-        List<Attribute> list=root.getAttributes();
-        Map<String,String> map=new HashMap<>();
-        for(Attribute a: list){
-            map.put(a.getName(),a.getValue());
+
+        Map<String,String> attributes=new HashMap<>(); // attributes of current
+        for(Attribute a: root.getAttributes()){
+            attributes.put(a.getName(),a.getValue());
         }
-        List<AbstractObject> children=new ArrayList<>();
+
+        List<AbstractObject> children=new ArrayList<>(); //children of current
         for(Element child:root.getChildren()){
             children.add(create(child,analyzer));
-
         }
-        return analyzer.createInstanceOf(root.getName(),children,map);
+
+        List<String> superTags=new ArrayList<>();
+        Element current=root;
+        while(current.getParentElement()!=null) {
+            current=current.getParentElement();
+            superTags.add(current.getName());
+        }
+
+        Map<Integer,List<String>> subTags=new HashMap<>();
+        List<Element> toBeExamined=root.getChildren();
+        int level=0;
+        while(!toBeExamined.isEmpty()){
+            List<String> tags=new ArrayList<>();
+            List<Element> newElements=new ArrayList<>();
+            for(Element e: toBeExamined)
+            {
+                tags.add(e.getName());
+                newElements.addAll(e.getChildren());
+            }
+            subTags.put(level,tags);
+            toBeExamined=newElements;
+            level++;
+        }
+
+        return analyzer.createInstanceOf(root.getName(),children,attributes,superTags,subTags);
     }
 
 

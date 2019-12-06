@@ -2,35 +2,33 @@ package AnalyzerImpl.Number.functions;
 
 import AnalyzerImpl.Number.AbstractNumber;
 import AnalyzerImpl.Number.Number;
-import core.AttributeDependent.AttributeDependent;
-import core.AttributeDependent.AttributeParam;
-import core.AttributeDependent.Interceptor;
-import core.Variable;
+import Analyzer.core.AttributeDependent.AttributeDependent;
+import Analyzer.core.AttributeDependent.AttributeParam;
+import Analyzer.core.AttributeDependent.Interceptor;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @AttributeDependent
 @Number(name="VAR",max=0)
-public class VariableNum extends AbstractNumber implements Variable {
+public class VariableNum extends AbstractNumber  {
 
     private String name;
+    private static Map<String,Integer> vars=new HashMap<>();
 
     @Override
     public Integer getValue() {
-        return (Integer)map.get(name);
+        return vars.get(name);
     }
 
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public void setName(String name) {
-        this.name=name;
-    }
 
     @Interceptor
     public void init(@AttributeParam("name")String name){
-        setName(name);
+        this.name=name;
+    }
+
+    public static void declareNewVariable(String s,Integer i){
+        vars.put(s,i);
     }
 
 }

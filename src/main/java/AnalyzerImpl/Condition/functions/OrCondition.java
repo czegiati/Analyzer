@@ -3,7 +3,6 @@ package AnalyzerImpl.Condition.functions;
 
 import AnalyzerImpl.Condition.AbstractCondition;
 import AnalyzerImpl.Condition.Condition;
-import core.AbstractObject;
 
 @Condition(name="OR")
 public class OrCondition extends AbstractCondition {

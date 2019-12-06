@@ -1,14 +1,15 @@
-package core.AttributeDependent;
+package Analyzer.restrictions;
 
-import AnalyzerImpl.Number.AbstractNumber;
+import Analyzer.restrictions.core.RestrictionAnnotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.PARAMETER)
+@RestrictionAnnotation(HaveNoSuperElementRestriction.class)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AttributeParam {
+@Target(ElementType.TYPE)
+public @interface HaveNoSuperElement {
     String value();
 }

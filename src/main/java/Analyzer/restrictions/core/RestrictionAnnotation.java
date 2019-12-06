@@ -1,13 +1,12 @@
-package core.AttributeDependent;
+package Analyzer.restrictions.core;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.List;
 
-
-@Target(ElementType.TYPE)
+@Target(ElementType.ANNOTATION_TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface AttributeDependent {
+public @interface RestrictionAnnotation {
+    Class<? extends RestrictionHandler> value();
 }

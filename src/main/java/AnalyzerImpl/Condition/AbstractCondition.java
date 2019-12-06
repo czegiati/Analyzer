@@ -1,9 +1,6 @@
 package AnalyzerImpl.Condition;
 
-import core.AbstractObject;
-
-import java.util.ArrayList;
-import java.util.List;
+import Analyzer.core.AbstractObject;
 
 public abstract class AbstractCondition extends AbstractObject<Boolean,AbstractCondition> {
 

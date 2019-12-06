@@ -1,6 +1,6 @@
 package AnalyzerImpl.Condition;
 
-import core.Analyzer;
+import Analyzer.core.Analyzer;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;

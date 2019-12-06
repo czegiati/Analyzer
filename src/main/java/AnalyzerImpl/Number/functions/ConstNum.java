@@ -2,18 +2,23 @@ package AnalyzerImpl.Number.functions;
 
 import AnalyzerImpl.Number.AbstractNumber;
 import AnalyzerImpl.Number.Number;
-import core.Const;
+import Analyzer.core.AttributeDependent.AttributeDependent;
+import Analyzer.core.AttributeDependent.AttributeParam;
+import Analyzer.core.AttributeDependent.Interceptor;
 
+@AttributeDependent
 @Number(name="CONST",max=0)
-public class ConstNum extends AbstractNumber implements Const {
+public class ConstNum extends AbstractNumber {
     Integer value;
     @Override
     public Integer getValue() {
         return value;
     }
 
-    @Override
-    public void setValue(Object value) {
-        this.value=(Integer)value;
+
+    @Interceptor
+    public void init(@AttributeParam("value")String value){
+        this.value=Integer.parseInt(value);
     }
+
 }

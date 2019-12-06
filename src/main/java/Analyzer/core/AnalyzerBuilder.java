@@ -1,6 +1,4 @@
-package core;
-
-import core.AttributeHandler.AttributeHandler;
+package Analyzer.core;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -9,13 +7,8 @@ import java.util.Map;
 
 public class AnalyzerBuilder {
     private AnnotationAccepter accepter;
-    private AttributeHandler attributeHandler;
     private Class<? extends Annotation> AnnotationClass=null;
     private Class<? extends AbstractObject> AbstractClass=null;
-
-    private Class getAnnotationClass(){
-        return this.AnnotationClass;
-    }
 
     public AnalyzerBuilder setAccepter(AnnotationAccepter accepter) {
         this.accepter = accepter;
@@ -32,10 +25,6 @@ public class AnalyzerBuilder {
         return this;
     }
 
-    public AnalyzerBuilder setAttributeHandler(AttributeHandler attributeHandler){
-        this.attributeHandler=attributeHandler;
-        return this;
-    }
     public Analyzer build(){
 
         return new Analyzer() {
@@ -60,10 +49,6 @@ public class AnalyzerBuilder {
                 return AbstractClass;
             }
 
-            @Override
-            public void handleAttributeDependantObjects(Object cond0, String name, Map attributes) {
-                attributeHandler.handle(cond0,name,attributes,getAbstractClassMap());
-            }
         };
     }
 

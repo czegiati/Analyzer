@@ -1,4 +1,4 @@
-package core;
+package Analyzer.core;
 
 import java.lang.annotation.Annotation;
 import java.util.List;
