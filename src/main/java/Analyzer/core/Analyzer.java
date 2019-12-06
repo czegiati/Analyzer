@@ -22,8 +22,15 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
 
     List<Class<? extends Annotation>> restrictions = new ArrayList<>();
 
+    default void detect(){
+        detect(null);
+    }
 
-    default void annotationDetect() {
+    default void detect(String s){
+        annotationDetect(s);
+    }
+
+    private void annotationDetect(String s) {
         final AnnotationDetector.TypeReporter reporter = new AnnotationDetector.TypeReporter() {
 
             @Override
@@ -50,7 +57,9 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         };
         final AnnotationDetector cf = new AnnotationDetector(reporter);
         try {
+            if(s==null)
             cf.detect();
+            else cf.detect(s);
         } catch (IOException e) {
         }
 
@@ -154,7 +163,6 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         }
     }
 
-
     static void registerRestrictions(Class<? extends Annotation>... annotation) {
         for (Class a : annotation) {
             restrictions.add(a);
@@ -177,4 +185,5 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         }
         return map;
     }
+
 }
