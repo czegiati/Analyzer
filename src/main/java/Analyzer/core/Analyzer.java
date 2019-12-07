@@ -91,7 +91,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         }
 
 
-        handleAttributeAnnotations(cond0, map);
+        handleAttributeAnnotations(name,cond0, map);
         return (AbstractClass) cond0;
     }
 
@@ -114,29 +114,57 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         throw new IllegalArgumentException("Your annotation should have a 'name' field!");
     }
 
-    private void handleAttributeAnnotations(Object o, Map<String, String> attriblites) {
+    private void handleAttributeAnnotations(String name,Object o, Map<String, String> attriblites) {
         if (o.getClass().isAnnotationPresent(AttributeDependent.class)) {
             Class class0 = o.getClass();
             int counter = 0;
 
             for (Method m : class0.getMethods()) {
                 if (m.isAnnotationPresent(Interceptor.class)) {
-                    counter++;
-                    if (counter > 1)
-                        throw new IllegalArgumentException("There can only be one Method with the Interceptor annotation!");
+                        handleSimpleAttributes(o,attriblites,m);
+                }
+            }
 
+        }
+    }
+
+    private void handleSimpleAttributes(Object o, Map<String, String> attriblites,Method m){
+
+        String[] params = new String[m.getParameters().length];
+        int i = 0;
+        for (Parameter p : m.getParameters()) {
+            if (p.isAnnotationPresent(AttributeParam.class)) {
+                if (attriblites.get(p.getAnnotation(AttributeParam.class).value()) == null && p.getAnnotation(AttributeParam.class).required())
+                    throw new IllegalArgumentException("Attribute " + p.getAnnotation(AttributeParam.class).value() + " cannot be found, while it is required for method: " + m.getName() + " in class: " + o.getClass());
+                params[i] = attriblites.get(p.getAnnotation(AttributeParam.class).value());
+            }
+            i++;
+        }
+        try {
+            m.invoke(o, params);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleBridgeAttributes(String name,Map<String, String> attriblites) {
+        for (Method m : getAbstractClass().getMethods()) {
+            if (m.isAnnotationPresent(Interceptor.class)) {
+                if (m.getAnnotation(Interceptor.class).value().equals(name)) {
                     String[] params = new String[m.getParameters().length];
                     int i = 0;
                     for (Parameter p : m.getParameters()) {
                         if (p.isAnnotationPresent(AttributeParam.class)) {
                             if (attriblites.get(p.getAnnotation(AttributeParam.class).value()) == null && p.getAnnotation(AttributeParam.class).required())
-                                throw new IllegalArgumentException("Attribute " + p.getAnnotation(AttributeParam.class).value() + " cannot be found, while it is required for method: " + m.getName() + " in class: " + o.getClass());
+                                throw new IllegalArgumentException("Attribute " + p.getAnnotation(AttributeParam.class).value() + " cannot be found, while it is required for method: " + m.getName() + " in a TypeBridge!");
                             params[i] = attriblites.get(p.getAnnotation(AttributeParam.class).value());
                         }
                         i++;
                     }
                     try {
-                        m.invoke(o, params);
+                        m.invoke(null, params);
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     } catch (InvocationTargetException e) {
@@ -144,7 +172,6 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                     }
                 }
             }
-
         }
     }
 
@@ -225,12 +252,12 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         return null;
     }
 
-     default AbstractClass getBrideType(String bridgeName,List<AbstractClass> subobjs){
+     default AbstractClass getBrideType(String bridgeName,List<AbstractClass> subobjs,Map<String,String> attrs){
         Method[] methods= getAbstractClass().getDeclaredMethods();
         for(Method m:methods){
             if(m.isAnnotationPresent(TypeBridge.class)){
                 if(m.getAnnotation(TypeBridge.class).name().equals(bridgeName)) {
-                    Object cond0 = null;
+                    Object cond0;
                     try {
                         cond0 = m.invoke(null,subobjs.toArray());
                     } catch (IllegalAccessException e) {
@@ -238,6 +265,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                     } catch (InvocationTargetException e) {
                         throw new IllegalArgumentException("Method should be public static: "+bridgeName);
                     }
+                   handleBridgeAttributes(bridgeName,attrs);
                     return (AbstractClass) cond0;
                 }
             }

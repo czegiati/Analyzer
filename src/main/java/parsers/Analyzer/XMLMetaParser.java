@@ -40,7 +40,12 @@ public class XMLMetaParser {
                 i++;
             }
 
-            return analyzer.getBrideType(root.getName(),children);
+            Map<String,String> attributes=new HashMap<>(); // attributes of current
+            for(Attribute a: root.getAttributes()){
+                attributes.put(a.getName(),a.getValue());
+            }
+
+            return analyzer.getBrideType(root.getName(),children,attributes);
         }
 
         Map<String,String> attributes=new HashMap<>(); // attributes of current
