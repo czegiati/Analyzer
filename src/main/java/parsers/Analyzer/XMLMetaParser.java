@@ -31,6 +31,18 @@ public class XMLMetaParser {
 
     private static AbstractObject create(Element root, Analyzer analyzer){
 
+        if(analyzer.getAbstractClassMap().get(root.getName())==null) //if typebridge
+        {
+            List<AbstractObject> children=new ArrayList<>(); //children of current - CHANGE
+            int i=0;
+            for(Element child:root.getChildren()){
+                children.add(create(child,analyzer.getTypeBridgeAnalyzer(root.getName(),i)));
+                i++;
+            }
+
+            return analyzer.getBrideType(root.getName(),children);
+        }
+
         Map<String,String> attributes=new HashMap<>(); // attributes of current
         for(Attribute a: root.getAttributes()){
             attributes.put(a.getName(),a.getValue());

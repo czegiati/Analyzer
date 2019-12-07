@@ -3,20 +3,17 @@ package Analyzer.core;
 import Analyzer.core.AttributeDependent.AttributeDependent;
 import Analyzer.core.AttributeDependent.AttributeParam;
 import Analyzer.core.AttributeDependent.Interceptor;
+import Analyzer.core.mixed.TypeBridge;
 import Analyzer.restrictions.core.RestrictionAnnotation;
 import Analyzer.restrictions.core.RestrictionHandler;
 import eu.infomas.annotation.AnnotationDetector;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface Analyzer<Anno extends Annotation, AbstractClass extends AbstractObject> {
 
@@ -31,6 +28,10 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
     }
 
     private void annotationDetect(String s) {
+
+        registerTypeBridges();
+        getTypeBridgeAnalyzer("EQUALS",0);
+
         final AnnotationDetector.TypeReporter reporter = new AnnotationDetector.TypeReporter() {
 
             @Override
@@ -186,4 +187,61 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         return map;
     }
 
+    private void registerTypeBridges(){
+            Method[] methods= getAbstractClass().getDeclaredMethods();
+            for(Method m:methods){
+                if (m.isAnnotationPresent(TypeBridge.class)){
+                    this.getAbstractClassMap().put(m.getAnnotation(TypeBridge.class).name(),null);
+                }
+            }
+    }
+
+    default Analyzer getTypeBridgeAnalyzer(String bridgeName,int number){
+        List<Method> methods= Arrays.asList(getAbstractClass().getDeclaredMethods());
+        for(Method m:methods){
+            if(m.isAnnotationPresent(TypeBridge.class)){
+                if(m.getAnnotation(TypeBridge.class).name().equals(bridgeName))
+                {
+                    Class[] classes= m.getAnnotation(TypeBridge.class).analyzerClass(); //all the analyzers classes
+                    Class[] paramclasses= m.getParameterTypes();
+                    for(Class analyzerclass:classes){
+                        Analyzer a1=null;
+                        try {
+                            a1= (Analyzer) analyzerclass.newInstance();
+                        } catch (InstantiationException e) {
+                            e.printStackTrace();
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+
+                        if(a1.getAbstractClass().equals(paramclasses[number])){
+                            return a1;
+                        }
+
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+     default AbstractClass getBrideType(String bridgeName,List<AbstractClass> subobjs){
+        Method[] methods= getAbstractClass().getDeclaredMethods();
+        for(Method m:methods){
+            if(m.isAnnotationPresent(TypeBridge.class)){
+                if(m.getAnnotation(TypeBridge.class).name().equals(bridgeName)) {
+                    Object cond0 = null;
+                    try {
+                        cond0 = m.invoke(null,subobjs.toArray());
+                    } catch (IllegalAccessException e) {
+                        throw new IllegalArgumentException("Method should be public static: "+bridgeName);
+                    } catch (InvocationTargetException e) {
+                        throw new IllegalArgumentException("Method should be public static: "+bridgeName);
+                    }
+                    return (AbstractClass) cond0;
+                }
+            }
+        }
+        throw new IllegalArgumentException("Something did not go as planned at TypeBridge: "+bridgeName);
+    }
 }
