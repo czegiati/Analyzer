@@ -21,4 +21,10 @@ public class ConstNum extends AbstractNumber {
         this.value=Integer.parseInt(value);
     }
 
+
+    public void setValue(Integer value) {
+        this.value = value;
+    }
 }
+
+

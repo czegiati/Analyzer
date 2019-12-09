@@ -93,54 +93,18 @@ public class XMLMetaParser {
        return create(element,analyzer).getValue();
     }
 
-    private static Element getElementAt(Element root,String path){
-        Element current=root;
-       while(path!="")
-        {
-            if(!path.contains("."))
-            {
-                return current.getChild(path).getChildren().get(0);
+    public static Element getDom2Element(String inputPath){
+       try{
+                File inputFile = new File(inputPath);
+                SAXBuilder saxBuilder = new SAXBuilder();
+                Document document = saxBuilder.build(inputFile);
+               return  document.getRootElement();
+            } catch(JDOMException e) {
+                e.printStackTrace();
+            } catch(IOException ioe) {
+                ioe.printStackTrace();
             }
-            if(current.getChild(getFirstTag(path))!=null)
-            {
-                current=current.getChild(getFirstTag(path));
-                path=cutPath(path);
-            }
-            else throw new IllegalArgumentException("Tag does not exist: "+getFirstTag(path));
+            throw new IllegalArgumentException("Oops, something in the file was wrong!");
         }
-        return current;
-    }
-
-    private static String getFirstTag(String string){
-        int i=0;
-        boolean loopbroken=false;
-        loop: while(i!=string.length()-1 ){
-            char char0=string.charAt(i);
-            if(char0=='.')
-            {
-                loopbroken=true;
-                break loop;
-            }
-            i++;
-        }
-        if(!loopbroken) return string;
-        return string.substring(0,i);
-    }
-
-    private static String cutPath(String s){
-        int i=0;
-        boolean loopbroken=false;
-        loop: while(i!=s.length()-1 ){
-            char char0=s.charAt(i);
-            if(char0=='.')
-            {
-                loopbroken=true;
-                break loop;
-            }
-            i++;
-        }
-        if(!loopbroken) return s.substring(i,s.length()+1);
-        return s.substring(i+1,s.length());
-    }
 
 }
