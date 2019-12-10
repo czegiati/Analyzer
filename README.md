@@ -3,8 +3,7 @@
 
 1,What is it for?
 
-Implementing the Analyzer interface, you can easily define tags, and assign a function to them.
-(Currently it only works for XML-files, but it is going to get extended in the future.)
+By implementing the Analyzer interface, you can easily define tags, and assign a function to them.
 
 Example for the xml:
 ```xml
@@ -16,23 +15,26 @@ Example for the xml:
     </NOT>
 </OR>
 ```
-For this example we have created 4 classes (TRUE,FALSE,NOT,OR), that are being used to assign functions to the different tags.
+This will return TRUE since ( true || false || !true ) = true;
 
 2,How to use?
 
-Implement the Analyzer<Annotation,AClass> interface (Annotation is the annotation defined by you(int must contain a 'name()' attribute)
-and the AClass is an Abstract class that implements AbstractObject)
+Implement the Analyzer<AnnotationC,AbstrClass> interface (AnnotationC is the annotation defined by you(int must contain a 'name()' attribute)
+and the AbstrClass is an Abstract class that implements AbstractObject)
 
-AnalyzerImplementation example:
+Analyzer implementation example:
 ```
 public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
+
+static Map<String,Class> map=new HashMap<>();    //you should create this static map
+
     @Override
-    public Map<String, Class<AbstractCondition>> getAbstractClassMap() {
-        return null;
+    public Map<String, Class<AbstractCondition>> getAbstractClassMap() {  //you should return the static map given above
+        return map;
     }
 
     @Override
-    public boolean acceptAnnotationOn(Annotation annotation, Class<?> class0, List<AbstractCondition> subobjs) {
+    public boolean acceptAnnotationOn(Map annotation, Class<?> class0, List<AbstractCondition> subobjs) {
         return true;
     }
 
@@ -49,39 +51,41 @@ public class MyAnalyzer implements Analyzer<Condition, AbstractCondition> {
 ```
 
 
- OR use the AnalyzerBuilder:
 
- ```
- Analyzer analyzer=new AnalyzerBuilder()
-                 .setAccepter((annotation, class0, subobjs) -> true) // the accepter does the same as the AcceptAnnotationOn()
-                 .setAbstractClass(AbstractNumber.class) //Here goes your class extending AbstractObject
-                 .setAnnotationClass(Number.class) //here goes your annotation class
-                 .build();
- ```
+acceptAnnotationOn() can be used to implement restrictions on the functions (should return true when you accept ).
+ This function gets called, when a object is getting instantiated.
 
 
-acceptAnnotationOn() can be used to implement restrictions on the functions (should return true when you accept ) example:
+ The paramaters:
+
+ annotation= is a Map<String,Object> where the string is the fields name in your annotation
+
+ class0= The actual class that is being instantiated tha will extend your AbstractClass
+
+ subobjs= the already instantiated objects, that are under the current
+
+
+
+The following example belongs to the ConditionAnalyzer. The Condition annotation have 3 fields in total: name(),min(),max().
+Name is already a requirement,but min() and max() is not. In this example the method acceptAnnotationOn(...)
+only allows instantiations of an object when:
+
+<ul><li>the number of subobjects is between the min() and max() values </li>
+  <li>the number of subobjects is equals or greater than min()</li></ul>
+
+[note: min() is 0 by default and max() is -1 (which indicates that it is unlimited)]
+
 ```
 @Override
- public boolean acceptAnnotationOn(Annotation annotation, Class<?> class0, List<AbstractCondition> subobjs) {
-     Integer min=null;
-        Integer max=null;
-        int argn=subobjs.size();
-        try {
-            min= (int) annotation.getClass().getMethod("min").invoke(annotation);
-            max= (int) annotation.getClass().getMethod("max").invoke(annotation);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        } catch (NoSuchMethodException e) {
-            e.printStackTrace();
-        }
-        return (min<=argn && max>=argn) || (min<=argn && max==-1);
-}
+ public boolean acceptAnnotationOn(Map annotation, Class<?> class0, List<AbstractCondition> subobjs) {
+        Integer min =(int) annotation.get("min");
+        Integer max = (int)annotation.get("max");
+        int argn = subobjs.size();
+        return (min <= argn && max >= argn) || (min <= argn && max == -1);
 ```
 
-Note: You should define the variables,you want to use as restrictions (in here the min and max methods of the Annotation), in the annotation:
+the condition annotation:
+
 ```
 public @interface Condition {
     int min() default 0;
@@ -92,7 +96,7 @@ public @interface Condition {
 
 Next is the getAbstractClassMap(), you should create a Map field in the class, and return it with the getAbstractClassMap, that you override:
 ```
-    public Map<String,Class<AbstractCondition>> classmap=new HashMap<>();
+    public static Map<String,Class<AbstractCondition>> classmap=new HashMap<>();
 
 @Override
     public Map<String, Class<YourAbstractClass>> getAbstractClassMap() {
@@ -154,7 +158,7 @@ Then you can use getValue to give it your desired behaviour.
 ```
     public static void main(String[] args) {
          Analyzer analyzer = new ConditionAnalyzer();
-                analyzer.annotationDetect();
+                analyzer.detect();  // detect(String path); is also a way to use the detector, in which case you can specify the exact place, where you want the Analyzer to look for annotated classes
                 System.out.println(XMLMetaParser.parse("xml.xml", analyzer).getValue());
     }
 ```
@@ -172,76 +176,113 @@ Then you can use getValue to give it your desired behaviour.
         ```
 
 
-<p1><b>NEW FEATURES IN 1.2 </b></p1>
+<p1><b>ATTRIBUTES </b></p1>
 
-You can implement in your function class the Const interface:
+You can also use attributes:
+
 ```
-@Number(name="CONST",min=0,max=0)
-public class ConstNum extends AbstractNumber implements Const {
-
-    private static Map<String,Integer> map=new HashMap<>();
-    private String name;
-
+@AttributeDependent
+@Number(name="CONST",max=0)
+public class ConstNum extends AbstractNumber {
+    Integer value;
     @Override
     public Integer getValue() {
-        return map.get(name);
+        return value;
     }
 
-    @Override
-    public String getName() {
-        return name;
+
+    @Interceptor
+    public void init(@AttributeParam("value")String value){
+        this.value=Integer.parseInt(value);
     }
 
-    @Override
-    public void setName(String name) {
-        this.name=name;
-    }
 
-    @Override
-    public void put(String s, Object o) {
-        this.name=s;
-        map.put(s,(Integer)o);
+    public void setValue(Integer value) {
+        this.value = value;
     }
+}
+```
 
-    @Override
-    public Object get(String name) {
-        return map.get(name);
+You must inform the Analyzer that this class uses attributes by annotating it with @AttributeDependent and also by annotating a SINGLE method with @Interceptor.
+The @Interceptor allows you to use the attributes.
+
+In this example is init(@AttributeParam("value")String value) you get the attribute called "value", and store it in the String.
+
+
+
+
+<p1><b>CONVERSION BETWEEN ANALYZERS </b></p1>
+
+You can also make a converter between analyzers.
+
+```
+public abstract class AbstractCondition extends AbstractObject<Boolean,AbstractCondition> {
+
+    @TypeBridge(name = "EQUALS",analyzerClass = {NumberAnalyzer.class})
+    public static AbstractCondition Equals(AbstractNumber num1,AbstractNumber num2){
+        if(num1.getValue()==num2.getValue())
+            return new True();
+        else return new False();
     }
+}
+```
+
+The conversions can only be achieved by a public static method inside the AbstractClass and annotate it with @TypeBridge.
+@TypeBridge have 2 attributes: name and analyzerClass. analyzerClass should contain the classes of the Analyzers that are able to recognize the parameters of the method.
+(in this case NumberAnalyzer.class is there because its getAbstractClass() returns AbstractNumber.class)
+
+And the name() attribute is used as a tag, and works just like the AndCondition class when we annotated it with @Condition(name="AND").
+
+Note: It should return an object, that represents a constant value.
+
+
+
+<p1><b>ADDITIONAL RESTRICTIONS </b></p1>
+
+If you are not satisfied with the restrictions that has been presented to you, don't worry, there is more!
+
+Although this mechanism is a still imperfect, it gives a lot of flexibility with your restrictions.
+
+```
+@Target({ElementType.TYPE})
+@Retention(RetentionPolicy.RUNTIME)
+@RestrictionAnnotation(HaveNoSuperElementRestriction.class)
+public @interface HaveNoSuperElement {
+    String value();
 
 }
 ```
 
-When implementing Const you should create a static Map<String,The type getValueReturns>, and use it as shown in this example.
+You can use the meta annotation @RestrictionAnnotation to create new restrictions! It has one attribute, which can be used to register the class that belongs to the annotation.
+The registered class must implement the RestricitionHandler interface.
 
-Then in main:
 ```
-    public static void main(String[] args) throws InvocationTargetException, IllegalAccessException, InstantiationException {
-
-        Analyzer analyzer = new NumberAnalyzer();
-        analyzer.annotationDetect();
-        analyzer.defineConst("10",new Integer(10),new ConstNum());
-        analyzer.defineConst("12",new Integer(12),new ConstNum());
-        analyzer.defineConst("20",new Integer(20),new ConstNum());
-        System.out.println(XMLMetaParser.parse("xml.xml", analyzer).getValue());
-
-
+public class HaveNoSuperElementRestriction implements RestrictionHandler {
+    @Override
+    public void accept(Object o, Map<String, String> attrs, List<String> superElements, Map<Integer, List<String>> subElements, Annotation annotation) {
+        if(superElements.contains(((HaveNoSuperElement)annotation).value()))
+        {
+            throw new IllegalArgumentException("Should not have super element "+(((HaveNoSuperElement)annotation).value())+"!");
+        }
     }
+}
 ```
-You can define the constants by  analyzer.defineConst(String name_of_const,Object object_that_gets_returned,Const an_instant_of_your_const);
-Note: currently you can only use your Consts by sticking '-name-???' into the end of your constant (in this example the class that implements Const is annotated like this: @Number(name="CONST",max=0)).
- ??? means the name_of_const
 
-((12+20)*10) in xml.xml:
+The implementation should then throw an error, whenever your restriction is being violated. The accept(...) methods parameters:
+<ul>
+<li>Object o= the object being inspected by the restriction</li>
+<li>Map attr = attributes, the keyset contains the names and the valueset contains the values</li>
+<li>List superElements = the super elements going upwards from the current element</li>
+<li>Map<Integer,List<String>> subElements= contains the names of the subelements; the keyset means the level; level-0 arethe children of the current object</li>
+<li>Annotation annotation= the annotation that belongs to the current object </li>
+</ul>
 
-        ```xml
-       <MUL>
-           <ADD>
-               <CONST-name-12></CONST-name-12>
-               <CONST-name-20></CONST-name-20>
-           </ADD>
-           <CONST-name-10></CONST-name-10>
-       </MUL>
-        ```
 
-Output: 320
+<p1><b>PROTOTYPE FEATURES</b></p1>
+
+There is only one feature that is under evaluation: the parser. When implemented, you are be able to parse any markup language, just like you can do it with xml.
+
+It is finished, and even have an XML implementation, but it is 2-3 times slower, than the original parser. You can find it under parser.implementations.XMLParser.
+It functions the same way as XMLMetaParser, so avoid using it, if you can.
+
 
