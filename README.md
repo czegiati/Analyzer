@@ -278,6 +278,8 @@ The implementation should then throw an error, whenever your restriction is bein
 </ul>
 
 
+Before using it, you must call Analyzer.registerRestrictions(...) static method in order to register it!
+
 <p1><b>PROTOTYPE FEATURES</b></p1>
 
 There is only one feature that is under evaluation: the parser. When implemented, you are be able to parse any markup language, just like you can do it with xml.
