@@ -1,4 +1,4 @@
-package parsers.Analyzer;
+package parsers.implementations;
 
 import Analyzer.core.AbstractObject;
 import Analyzer.core.Analyzer;

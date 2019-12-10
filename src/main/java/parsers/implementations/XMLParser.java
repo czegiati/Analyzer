@@ -1,13 +1,18 @@
-package parsers.Analyzer;
+package parsers.implementations;
 
 import Analyzer.core.AbstractObject;
 import Analyzer.core.Analyzer;
 import org.jdom2.Attribute;
+import org.jdom2.Document;
 import org.jdom2.Element;
+import org.jdom2.JDOMException;
+import org.jdom2.input.SAXBuilder;
 import parsers.classes.AnalyzerElement;
 import parsers.interfaces.AnalyzerParser;
 import parsers.interfaces.ElementParser;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,21 +27,29 @@ public class XMLParser implements AnalyzerParser {
 
     @Override
     public AbstractObject parseFromFile(String input, Analyzer analyzer) {
-        return null;
+        try {
+            File inputFile = new File(input);
+            SAXBuilder saxBuilder = new SAXBuilder();
+            Document document = saxBuilder.build(inputFile);
+            Element root = document.getRootElement();
+            return parseRoot(root,analyzer);
+        } catch(JDOMException e) {
+            e.printStackTrace();
+        } catch(IOException ioe) {
+            ioe.printStackTrace();
+        }
+        throw new IllegalArgumentException("Oops, something in the file was wrong!");
     }
 
 
-    public AbstractObject parse(Element element,Analyzer analyzer){
-        AnalyzerElement ae=getElementParser().parseElement(element);
-        return AnalyzerParser.parseElement(ae,analyzer);
-    }
+
 
 
 
     static class XMLElementParser implements ElementParser<Element>{
 
         @Override
-        public AnalyzerElement parseElement(Element element) {
+        public AnalyzerElement parseRootElement(Element element) {
             AnalyzerElement e=new AnalyzerElement();
             e.setName(element.getName());
 
