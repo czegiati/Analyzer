@@ -18,6 +18,9 @@ public interface AnalyzerParser {
     private AbstractObject parseElement(AnalyzerElement element,Analyzer analyzer){
         List<AbstractObject> children=new ArrayList<>();
         int i=0;
+
+        if(!analyzer.getAbstractClassMap().containsKey(element.getName())) throw new IllegalArgumentException(element.getName()+" has not been created!");
+
         if(analyzer.getAbstractClassMap().get(element.getName())==null) {
             for (AnalyzerElement child : element.getSubElements()) {
                 children.add(parseElement(child, analyzer.getTypeBridgeAnalyzer(element.getName(), i)));

@@ -4,6 +4,7 @@ import Analyzer.core.*;
 import Analyzer.core.AttributeDependent.AttributeDependent;
 import Analyzer.core.AttributeDependent.AttributeParam;
 import Analyzer.core.AttributeDependent.Interceptor;
+import Analyzer.core.content.ContentSetter;
 import Analyzer.core.mixed.TypeBridge;
 import Analyzer.core.parsers.ParseWith;
 import Analyzer.core.parsers.ParseWithInterface;
@@ -90,7 +91,6 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
             e.printStackTrace();
         }
         ((AbstractClass) cond0).setSubObjects(subobjs);
-
         try {
             handleRestrictions(cond0, map, superElements, subElements);
         } catch (IllegalAccessException e) {
@@ -98,8 +98,8 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         } catch (InstantiationException e) {
             e.printStackTrace();
         }
+        ContentSetter.inject(cond0,element);
         handleAttributeAnnotations(name,cond0, map);
-
         if(isParseWithPresentOnClass(getAbstractClassMap().get(name))){
            return (AbstractClass) this.parseWith(getAbstractClassMap().get(name).getAnnotation(ParseWith.class),element,this);
         }
@@ -264,6 +264,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
     }
 
      default AbstractClass getBrideType(AnalyzerElement element, List<AbstractObject> subobjs){
+        ContentSetter.injectStatic(getAbstractClass(),element);
          Map<String,String> attrs=element.getAttributes();
          String bridgeName=element.getName();
         Method[] methods= getAbstractClass().getDeclaredMethods();

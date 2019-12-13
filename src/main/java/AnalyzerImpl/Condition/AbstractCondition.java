@@ -4,15 +4,26 @@ import Analyzer.core.AbstractObject;
 import Analyzer.core.AttributeDependent.AttributeDependent;
 import Analyzer.core.AttributeDependent.AttributeParam;
 import Analyzer.core.AttributeDependent.Interceptor;
+import Analyzer.core.content.Content;
 import Analyzer.core.mixed.TypeBridge;
 import Analyzer.core.parsers.ParseWith;
 import AnalyzerImpl.Condition.functions.False;
 import AnalyzerImpl.Condition.functions.True;
 import AnalyzerImpl.Number.AbstractNumber;
+import AnalyzerImpl.Number.Number;
 import AnalyzerImpl.Number.NumberAnalyzer;
 import parsers.implementations.XMLParser;
 
 public abstract class AbstractCondition extends AbstractObject<Boolean,AbstractCondition> {
+
+    @Content
+    static String content;
+
+    @TypeBridge(name="ASD",analyzerClass = {})
+    public static AbstractCondition asd(){
+        System.out.println(content);
+        return new True();
+    }
 
     @TypeBridge(name = "EQUALS",analyzerClass = {NumberAnalyzer.class})
     public static AbstractCondition Equals(AbstractNumber num1,AbstractNumber num2){
@@ -38,10 +49,5 @@ public abstract class AbstractCondition extends AbstractObject<Boolean,AbstractC
         System.out.println("GT");
     }
 
-    @ParseWith(parser= XMLParser.class)
-    @TypeBridge(name="PARSE",analyzerClass = NumberAnalyzer.class)
-    public static AbstractCondition parseNumber(){
-        return null;
-    }
 
 }
