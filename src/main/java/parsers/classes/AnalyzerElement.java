@@ -9,6 +9,7 @@ import java.util.Map;
 
 public final class AnalyzerElement {
     String name;
+    String content;
     AnalyzerElement parent;
     List<AnalyzerElement> subElements=new ArrayList<>();
     Map<String,String> attributes=new HashMap<>();
@@ -45,6 +46,14 @@ public final class AnalyzerElement {
         this.name = name;
     }
 
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
     public List<AnalyzerElement> getSuperElements(){
         List<AnalyzerElement> list=new ArrayList<>();
         AnalyzerElement current=this.parent;
@@ -54,6 +63,15 @@ public final class AnalyzerElement {
         }
         return list;
     }
+
+    public List<String> getSuperElementNames(){
+        List<String> list=new ArrayList<>();
+        for(AnalyzerElement s:getSuperElements()){
+            list.add(s.getName());
+        }
+        return list;
+    }
+
 
     public Map<Integer,List<String>> getNamesOfSubElements(){
         Map<Integer,List<String>> subTags=new HashMap<>();

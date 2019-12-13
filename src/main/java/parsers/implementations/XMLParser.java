@@ -7,12 +7,18 @@ import org.jdom2.Document;
 import org.jdom2.Element;
 import org.jdom2.JDOMException;
 import org.jdom2.input.SAXBuilder;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import parsers.classes.AnalyzerElement;
 import parsers.interfaces.AnalyzerParser;
 import parsers.interfaces.ElementParser;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +38,7 @@ public class XMLParser implements AnalyzerParser {
             SAXBuilder saxBuilder = new SAXBuilder();
             Document document = saxBuilder.build(inputFile);
             Element root = document.getRootElement();
-            return parseRoot(root,analyzer);
+            return parseRoot(new XMLElementParser().parseRootElement(root),analyzer);
         } catch(JDOMException e) {
             e.printStackTrace();
         } catch(IOException ioe) {
@@ -41,9 +47,19 @@ public class XMLParser implements AnalyzerParser {
         throw new IllegalArgumentException("Oops, something in the file was wrong!");
     }
 
-
-
-
+    @Override
+    public AbstractObject parseFromString(String str, Analyzer analyzer) {
+        SAXBuilder builder = new SAXBuilder();
+        Document doc = null;
+        try {
+            doc = builder.build(new StringReader(str));
+        } catch (JDOMException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return parseRoot(new XMLElementParser().parseRootElement(doc.getRootElement()),analyzer);
+    }
 
 
     static class XMLElementParser implements ElementParser<Element>{
@@ -63,6 +79,8 @@ public class XMLParser implements AnalyzerParser {
             for(Attribute a:element.getAttributes()){
                 map.put(a.getName(),a.getValue());
             }
+
+            e.setContent(element.getText().trim());
 
             e.setAttributes(map);
             return e;

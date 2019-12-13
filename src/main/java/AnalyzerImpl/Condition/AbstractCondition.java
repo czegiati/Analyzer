@@ -5,10 +5,12 @@ import Analyzer.core.AttributeDependent.AttributeDependent;
 import Analyzer.core.AttributeDependent.AttributeParam;
 import Analyzer.core.AttributeDependent.Interceptor;
 import Analyzer.core.mixed.TypeBridge;
+import Analyzer.core.parsers.ParseWith;
 import AnalyzerImpl.Condition.functions.False;
 import AnalyzerImpl.Condition.functions.True;
 import AnalyzerImpl.Number.AbstractNumber;
 import AnalyzerImpl.Number.NumberAnalyzer;
+import parsers.implementations.XMLParser;
 
 public abstract class AbstractCondition extends AbstractObject<Boolean,AbstractCondition> {
 
@@ -34,6 +36,12 @@ public abstract class AbstractCondition extends AbstractObject<Boolean,AbstractC
     @Interceptor("GT")
     public static void gt(){
         System.out.println("GT");
+    }
+
+    @ParseWith(parser= XMLParser.class)
+    @TypeBridge(name="PARSE",analyzerClass = NumberAnalyzer.class)
+    public static AbstractCondition parseNumber(){
+        return null;
     }
 
 }

@@ -1,13 +1,18 @@
 package Analyzer.core;
 
+import Analyzer.core.*;
 import Analyzer.core.AttributeDependent.AttributeDependent;
 import Analyzer.core.AttributeDependent.AttributeParam;
 import Analyzer.core.AttributeDependent.Interceptor;
 import Analyzer.core.mixed.TypeBridge;
+import Analyzer.core.parsers.ParseWith;
+import Analyzer.core.parsers.ParseWithInterface;
 import Analyzer.restrictions.core.RestrictionAnnotation;
 import Analyzer.restrictions.core.RestrictionHandler;
 import eu.infomas.annotation.AnnotationDetector;
+import parsers.classes.AnalyzerElement;
 
+import javax.swing.text.AbstractDocument;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -15,7 +20,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
 
-public interface Analyzer<Anno extends Annotation, AbstractClass extends AbstractObject> {
+public interface Analyzer<Anno extends Annotation, AbstractClass extends AbstractObject> extends ParseWithInterface {
 
     List<Class<? extends Annotation>> restrictions = new ArrayList<>();
 
@@ -66,7 +71,11 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
 
     }
 
-    default AbstractClass createInstanceOf(String name, List<AbstractClass> subobjs, Map<String, String> map, List<String> superElements, Map<Integer, List<String>> subElements) {
+    default AbstractClass createInstanceOf(AnalyzerElement element,List<AbstractClass> subobjs) {
+        String name=element.getName();
+        Map<String, String> map=element.getAttributes();
+        List<String> superElements=element.getSuperElementNames();
+        Map<Integer, List<String>> subElements=element.getNamesOfSubElements();
         if (!getAbstractClassMap().containsKey(name)) throw new IllegalArgumentException("Unknown operation: " + name);
 
         if (!acceptAnnotationOn(getAnnotationFields(name), this.getAbstractClassMap().get(name), subobjs))
@@ -89,9 +98,11 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         } catch (InstantiationException e) {
             e.printStackTrace();
         }
-
-
         handleAttributeAnnotations(name,cond0, map);
+
+        if(isParseWithPresentOnClass(getAbstractClassMap().get(name))){
+           return (AbstractClass) this.parseWith(getAbstractClassMap().get(name).getAnnotation(ParseWith.class),element,this);
+        }
         return (AbstractClass) cond0;
     }
 
@@ -252,10 +263,23 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         return null;
     }
 
-     default AbstractClass getBrideType(String bridgeName,List<AbstractClass> subobjs,Map<String,String> attrs){
+     default AbstractClass getBrideType(AnalyzerElement element, List<AbstractObject> subobjs){
+         Map<String,String> attrs=element.getAttributes();
+         String bridgeName=element.getName();
         Method[] methods= getAbstractClass().getDeclaredMethods();
         for(Method m:methods){
             if(m.isAnnotationPresent(TypeBridge.class)){
+                if(isParseWithPresentOnMethod(m)){
+                    Analyzer a1=null;
+                    try {
+                        a1=m.getAnnotation(TypeBridge.class).analyzerClass()[0].newInstance();
+                    } catch (InstantiationException e) {
+                        e.printStackTrace();
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                    return (AbstractClass) parseWith(m.getAnnotation(ParseWith.class),element, a1);
+                }
                 if(m.getAnnotation(TypeBridge.class).name().equals(bridgeName)) {
                     Object cond0;
                     try {

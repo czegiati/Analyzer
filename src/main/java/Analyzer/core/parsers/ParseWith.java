@@ -1,15 +1,15 @@
-package Analyzer.core.mixed;
+package Analyzer.core.parsers;
 
-import Analyzer.core.Analyzer;
+import parsers.interfaces.AnalyzerParser;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.METHOD)
+@Target({ElementType.TYPE,ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface TypeBridge {
-    String name();
-    Class<? extends Analyzer>[] analyzerClass();
+public @interface ParseWith {
+    Class<? extends AnalyzerParser> parser();
+
 }
