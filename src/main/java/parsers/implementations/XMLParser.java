@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 public class XMLParser implements AnalyzerParser {
+
     static final XMLElementParser elementParser = new XMLElementParser();
     @Override
     public ElementParser getElementParser() {

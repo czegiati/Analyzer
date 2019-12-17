@@ -7,9 +7,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@RestrictionAnnotation(HaveNoSuperElementRestriction.class)
+@RestrictionAnnotation(value = HaveNoSuperElementRestriction.class,message = "Cannot have such super element!")
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE,ElementType.METHOD})
 public @interface HaveNoSuperElement {
     String value();
 }

@@ -8,10 +8,9 @@ import java.lang.annotation.*;
 @Repeatable(HasSuperElement.List.class)
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@RestrictionAnnotation(HasSuperElementRestriction.class)
+@RestrictionAnnotation(value = HasSuperElementRestriction.class,message = "Cannot have")
 public @interface HasSuperElement {
     String value();
-    int level() default -1; // -1 in in any level
 
 
     @Retention(RetentionPolicy.RUNTIME)

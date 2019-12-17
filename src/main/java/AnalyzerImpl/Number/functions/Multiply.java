@@ -1,5 +1,6 @@
 package AnalyzerImpl.Number.functions;
 
+import Analyzer.restrictions.HaveNoSuperElement;
 import AnalyzerImpl.Number.AbstractNumber;
 import AnalyzerImpl.Number.Number;
 

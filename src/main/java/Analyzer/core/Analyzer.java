@@ -20,6 +20,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public interface Analyzer<Anno extends Annotation, AbstractClass extends AbstractObject> extends ParseWithInterface {
 
@@ -91,13 +92,9 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
             e.printStackTrace();
         }
         ((AbstractClass) cond0).setSubObjects(subobjs);
-        try {
-            handleRestrictions(cond0, map, superElements, subElements);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InstantiationException e) {
-            e.printStackTrace();
-        }
+
+            handleRestrictionsDynamically(getAbstractClassMap().get(name),element,(AbstractObject)cond0);
+
         ContentSetter.inject(cond0,element);
         handleAttributeAnnotations(name,cond0, map);
         if(isParseWithPresentOnClass(getAbstractClassMap().get(name))){
@@ -186,28 +183,6 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         }
     }
 
-    private void handleRestrictions(Object o, Map<String, String> attrs, List<String> superElements, Map<Integer, List<String>> subElements) throws IllegalAccessException, InstantiationException {
-        for (Class c0 : restrictions) {
-            if (o.getClass().isAnnotationPresent(c0)) { //a restriction is placed on this class
-                Annotation annotation = o.getClass().getAnnotation(c0);
-                if (annotation.annotationType().isAnnotationPresent(RestrictionAnnotation.class)) {
-                    Class interf = annotation.annotationType().getAnnotation(RestrictionAnnotation.class).value();
-                    if (RestrictionHandler.class.isAssignableFrom(interf)) {
-                        ((RestrictionHandler) interf.newInstance()).accept(o, attrs, superElements, subElements, annotation);
-                    } else
-                        throw new IllegalArgumentException("You have to implement the RestrictionHandler interface int your restriction's body :" + interf);
-                } else
-                    throw new IllegalArgumentException("You cannot register an annotation as Restriction without annotating it with @RestrictionAnnotation: " + annotation.getClass());
-            }
-        }
-    }
-
-    static void registerRestrictions(Class<? extends Annotation>... annotation) {
-        for (Class a : annotation) {
-            restrictions.add(a);
-        }
-    }
-
     private Map<String,Object> getAnnotationFields(String name){
         Class annoClass=getAnnotationClass();
         Annotation a=this.getAbstractClassMap().get(name).getAnnotation(getAnnotationClass());
@@ -290,6 +265,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                     } catch (InvocationTargetException e) {
                         throw new IllegalArgumentException("Method should be public static: "+bridgeName);
                     }
+                    handleRestrictionsDynamically(m,element);
                    handleBridgeAttributes(bridgeName,attrs);
                     return (AbstractClass) cond0;
                 }
@@ -297,4 +273,65 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         }
         throw new IllegalArgumentException("Something did not go as planned at TypeBridge: "+bridgeName);
     }
+
+    private static boolean isRestrictionCorrect(RestrictionAnnotation annotation){
+        if(RestrictionHandler.class.isAssignableFrom(annotation.value()))
+            return true;
+        return false;
+}
+
+    private void handleRestrictionsDynamically(Class class0,AnalyzerElement element,AbstractObject o){
+        for(Annotation anno:getRestrictionAnnotations(class0)){
+            RestrictionAnnotation ra= anno.annotationType().getAnnotation(RestrictionAnnotation.class);
+            if(isRestrictionCorrect(ra)){
+                RestrictionHandler handler;
+                try {
+                    handler = ra.value().newInstance();
+                    if(handler.accept(element,o,this,anno)){
+                        return;
+                    }
+                    else throw new IllegalArgumentException(ra.message()+" caused by Restriction: "+anno.annotationType()+" in class "+class0.getName());
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            else throw new IllegalArgumentException("You have to implement the RestrictionHandler interface into your restriction's body: "+ra.value());
+        }
+    }
+
+    private void handleRestrictionsDynamically(Method class0,AnalyzerElement element){
+        for(Annotation anno:getRestrictionAnnotations(class0)){
+            RestrictionAnnotation ra=anno.annotationType().getAnnotation(RestrictionAnnotation.class);
+            if(isRestrictionCorrect(ra)){
+                RestrictionHandler handler;
+                try {
+                    handler = ra.value().newInstance();
+                    if(handler.accept(element,null,this,anno)){
+                        return;
+                    }
+                    else throw new IllegalArgumentException(ra.message()+" caused by Restriction: "+anno.annotationType()+" in "+class0.getDeclaringClass().getName()+" / "+class0.getName()+" method!" );
+                } catch (InstantiationException e) {
+                    e.printStackTrace();
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            else throw new IllegalArgumentException("You have to implement the RestrictionHandler interface into your restriction's body: "+ra.value());
+        }
+    }
+
+    private static List<Annotation> getRestrictionAnnotations(Method method){
+       return Arrays.stream(method.getAnnotations()).filter(o -> o.annotationType().isAnnotationPresent(RestrictionAnnotation.class)).collect(Collectors.toList());
+    }
+
+    private static List<Annotation> getRestrictionAnnotations(Class class0){
+        return Arrays.stream(class0.getAnnotations()).filter(o -> o.annotationType().isAnnotationPresent(RestrictionAnnotation.class)).collect(Collectors.toList());
+
+    }
+
+
 }
