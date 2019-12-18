@@ -1,11 +1,11 @@
 package AnalyzerImpl.Number.functions;
 
-import Analyzer.restrictions.HaveNoSuperElement;
+import restrictions.HaveNoSuperElement;
 import AnalyzerImpl.Number.AbstractNumber;
 import AnalyzerImpl.Number.Number;
-import Analyzer.core.AttributeDependent.AttributeDependent;
-import Analyzer.core.AttributeDependent.AttributeParam;
-import Analyzer.core.AttributeDependent.Interceptor;
+import core.attributes.AttributeDependent;
+import core.attributes.AttributeParam;
+import core.attributes.Interceptor;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,19 +1,17 @@
-package Analyzer.core;
+package core;
 
-import Analyzer.core.*;
-import Analyzer.core.AttributeDependent.AttributeDependent;
-import Analyzer.core.AttributeDependent.AttributeParam;
-import Analyzer.core.AttributeDependent.Interceptor;
-import Analyzer.core.content.ContentSetter;
-import Analyzer.core.mixed.TypeBridge;
-import Analyzer.core.parsers.ParseWith;
-import Analyzer.core.parsers.ParseWithInterface;
-import Analyzer.restrictions.core.RestrictionAnnotation;
-import Analyzer.restrictions.core.RestrictionHandler;
+import core.attributes.AttributeDependent;
+import core.attributes.AttributeParam;
+import core.attributes.Interceptor;
+import core.fields.AnalyzerElementSetter;
+import core.fields.ContentSetter;
+import core.parsing.ParserIgnoresChildren;
+import core.type.TypeBridge;
+import restrictions.core.RestrictionAnnotation;
+import restrictions.core.RestrictionHandler;
 import eu.infomas.annotation.AnnotationDetector;
 import parsers.classes.AnalyzerElement;
 
-import javax.swing.text.AbstractDocument;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -22,9 +20,7 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public interface Analyzer<Anno extends Annotation, AbstractClass extends AbstractObject> extends ParseWithInterface {
-
-    List<Class<? extends Annotation>> restrictions = new ArrayList<>();
+public interface Analyzer<Anno extends Annotation, AbstractClass extends AbstractObject>  {
 
     default void detect(){
         detect(null);
@@ -78,9 +74,10 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         Map<String, String> map=element.getAttributes();
         List<String> superElements=element.getSuperElementNames();
         Map<Integer, List<String>> subElements=element.getNamesOfSubElements();
+
         if (!getAbstractClassMap().containsKey(name)) throw new IllegalArgumentException("Unknown operation: " + name);
 
-        if (!acceptAnnotationOn(getAnnotationFields(name), this.getAbstractClassMap().get(name), subobjs))
+        if (!acceptAnnotationOn(getAnnotationFields(name), this.getAbstractClassMap().get(name), element,this))
             throw new IllegalArgumentException("The annotation was rejected!");
 
         Object cond0 = null;
@@ -96,16 +93,15 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
             handleRestrictionsDynamically(getAbstractClassMap().get(name),element,(AbstractObject)cond0);
 
         ContentSetter.inject(cond0,element);
+        AnalyzerElementSetter.inject(cond0,element);
         handleAttributeAnnotations(name,cond0, map);
-        if(isParseWithPresentOnClass(getAbstractClassMap().get(name))){
-           return (AbstractClass) this.parseWith(getAbstractClassMap().get(name).getAnnotation(ParseWith.class),element,this);
-        }
+
         return (AbstractClass) cond0;
     }
 
     Map<String, Class<AbstractClass>> getAbstractClassMap();
 
-    boolean acceptAnnotationOn(Map<String, Object> annotation, Class<?> class0, List<AbstractClass> subobjs);
+    boolean acceptAnnotationOn(Map annotation,Class<?> class0, AnalyzerElement element,Analyzer analyzer);
 
     Class<Anno> getAnnotationClass();
 
@@ -239,23 +235,13 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
     }
 
      default AbstractClass getBrideType(AnalyzerElement element, List<AbstractObject> subobjs){
+        AnalyzerElementSetter.injectStatic(getAbstractClass(),element);
         ContentSetter.injectStatic(getAbstractClass(),element);
          Map<String,String> attrs=element.getAttributes();
          String bridgeName=element.getName();
         Method[] methods= getAbstractClass().getDeclaredMethods();
         for(Method m:methods){
             if(m.isAnnotationPresent(TypeBridge.class)){
-                if(isParseWithPresentOnMethod(m)){
-                    Analyzer a1=null;
-                    try {
-                        a1=m.getAnnotation(TypeBridge.class).analyzerClass()[0].newInstance();
-                    } catch (InstantiationException e) {
-                        e.printStackTrace();
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                    return (AbstractClass) parseWith(m.getAnnotation(ParseWith.class),element, a1);
-                }
                 if(m.getAnnotation(TypeBridge.class).name().equals(bridgeName)) {
                     Object cond0;
                     try {
@@ -331,6 +317,13 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
     private static List<Annotation> getRestrictionAnnotations(Class class0){
         return Arrays.stream(class0.getAnnotations()).filter(o -> o.annotationType().isAnnotationPresent(RestrictionAnnotation.class)).collect(Collectors.toList());
 
+    }
+
+    public default boolean areChildrenIgnored(AnalyzerElement element){
+        if (getAbstractClassMap().get(element.getName()).isAnnotationPresent(ParserIgnoresChildren.class)) {
+                return true;
+            }
+        return false;
     }
 
 

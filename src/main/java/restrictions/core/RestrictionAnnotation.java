@@ -1,4 +1,4 @@
-package Analyzer.restrictions.core;
+package restrictions.core;
 
 import java.lang.annotation.*;
 

@@ -1,6 +1,6 @@
-package Analyzer.restrictions;
+package restrictions;
 
-import Analyzer.restrictions.core.RestrictionAnnotation;
+import restrictions.core.RestrictionAnnotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

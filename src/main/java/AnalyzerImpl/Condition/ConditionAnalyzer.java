@@ -1,6 +1,7 @@
 package AnalyzerImpl.Condition;
 
-import Analyzer.core.Analyzer;
+import core.Analyzer;
+import parsers.classes.AnalyzerElement;
 
 import java.util.HashMap;
 import java.util.List;
@@ -24,10 +25,10 @@ public class ConditionAnalyzer implements Analyzer {
     }
 
     @Override
-    public boolean acceptAnnotationOn(Map annotation, Class class0, List subobjs) {
+    public boolean acceptAnnotationOn(Map annotation, Class class0, AnalyzerElement element,Analyzer analyzer) {
         Integer min =(int) annotation.get("min");
         Integer max = (int)annotation.get("max");
-        int argn = subobjs.size();
+        int argn = element.getSubElements().size();
         return (min <= argn && max >= argn) || (min <= argn && max == -1);
     }
 }

@@ -1,12 +1,10 @@
-package Analyzer.restrictions;
+package restrictions;
 
-import Analyzer.core.Analyzer;
-import Analyzer.restrictions.core.RestrictionHandler;
+import core.Analyzer;
+import restrictions.core.RestrictionHandler;
 import parsers.classes.AnalyzerElement;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Map;
 
 public class HasSuperElementRestriction implements RestrictionHandler {
 

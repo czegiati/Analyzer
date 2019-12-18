@@ -1,4 +1,6 @@
-package Analyzer.core;
+package core;
+
+import parsers.classes.AnalyzerElement;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
@@ -35,8 +37,8 @@ public class AnalyzerBuilder {
             }
 
             @Override
-            public boolean acceptAnnotationOn(Map annotation, Class class0, List subobjs) {
-                return accepter.accept(annotation,class0,subobjs);
+            public boolean acceptAnnotationOn(Map map,Class class0, AnalyzerElement element,Analyzer analyzer) {
+                return accepter.accept(map,class0,element,analyzer);
             }
 
 

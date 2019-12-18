@@ -1,11 +1,9 @@
-package Analyzer.restrictions.core;
+package restrictions.core;
 
-import Analyzer.core.Analyzer;
+import core.Analyzer;
 import parsers.classes.AnalyzerElement;
 
 import java.lang.annotation.Annotation;
-import java.util.List;
-import java.util.Map;
 
 public interface RestrictionHandler {
 

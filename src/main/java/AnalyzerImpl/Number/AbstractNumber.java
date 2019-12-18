@@ -1,6 +1,6 @@
 package AnalyzerImpl.Number;
 
-import Analyzer.core.AbstractObject;
+import core.AbstractObject;
 
 public abstract class AbstractNumber extends AbstractObject<Integer,AbstractNumber> {
 

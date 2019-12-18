@@ -1,11 +1,10 @@
 package AnalyzerImpl.Number.functions;
 
-import Analyzer.core.content.Content;
 import AnalyzerImpl.Number.AbstractNumber;
 import AnalyzerImpl.Number.Number;
-import Analyzer.core.AttributeDependent.AttributeDependent;
-import Analyzer.core.AttributeDependent.AttributeParam;
-import Analyzer.core.AttributeDependent.Interceptor;
+import core.attributes.AttributeDependent;
+import core.attributes.AttributeParam;
+import core.attributes.Interceptor;
 
 @AttributeDependent
 @Number(name="CONST",max=0)
