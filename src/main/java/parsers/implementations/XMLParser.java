@@ -21,11 +21,6 @@ import java.util.Map;
 
 public class XMLParser implements AnalyzerParser {
 
-    static final XMLElementParser elementParser = new XMLElementParser();
-    @Override
-    public ElementParser getElementParser() {
-        return elementParser;
-    }
 
     @Override
     public AbstractObject parseFromFile(String input, Analyzer analyzer) {

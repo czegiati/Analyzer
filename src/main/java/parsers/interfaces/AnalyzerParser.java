@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface AnalyzerParser {
-    public ElementParser getElementParser();
 
     public AbstractObject parseFromFile(String input, Analyzer analyzer);
 
