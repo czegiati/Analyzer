@@ -2,6 +2,7 @@ package parsers.interfaces;
 
 import core.AbstractObject;
 import core.Analyzer;
+import exceptions.AbstractObjectInstantiationFailureException;
 import parsers.classes.AnalyzerElement;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public interface AnalyzerParser {
         List<AbstractObject> children=new ArrayList<>();
         int i=0;
 
-        if(!analyzer.getAbstractClassMap().containsKey(element.getName())) throw new IllegalArgumentException(element.getName()+" has not been created!");
+        if(!analyzer.getAbstractClassMap().containsKey(element.getName())) throw new AbstractObjectInstantiationFailureException(element.getName()+" has not been created!");
 
             if (analyzer.getAbstractClassMap().get(element.getName()) == null) {
                 for (AnalyzerElement child : element.getSubElements()) {
@@ -38,8 +39,8 @@ public interface AnalyzerParser {
              return analyzer.getBrideType(element, children);
          }
 
-        return analyzer.createInstanceOf(element,children);
 
+            return analyzer.createInstanceOf(element,children);
     }
 
     public default AbstractObject parseRoot(AnalyzerElement element, Analyzer analyzer){

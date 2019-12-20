@@ -7,12 +7,15 @@ import core.fields.AnalyzerElementSetter;
 import core.fields.ContentSetter;
 import core.parsing.ParserIgnoresChildren;
 import core.type.TypeBridge;
+import exceptions.AbstractObjectInstantiationFailureException;
+import exceptions.AnalyzerAttributeException;
+import exceptions.AnalyzerDetectorException;
+import exceptions.DefinedRestrictionException;
 import restrictions.core.RestrictionAnnotation;
 import restrictions.core.RestrictionHandler;
 import eu.infomas.annotation.AnnotationDetector;
 import parsers.classes.AnalyzerElement;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -20,75 +23,86 @@ import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public interface Analyzer<Anno extends Annotation, AbstractClass extends AbstractObject>  {
+public interface Analyzer  {
 
-    default void detect(){
+    default void detect() throws AnalyzerDetectorException{
         detect(null);
     }
 
-    default void detect(String s){
+    default void detect(String s) throws AnalyzerDetectorException{
         annotationDetect(s);
     }
 
-    private void annotationDetect(String s) {
+    private void annotationDetect(String s) throws AnalyzerDetectorException {
 
         registerTypeBridges();
-        getTypeBridgeAnalyzer("EQUALS",0);
 
-        final AnnotationDetector.TypeReporter reporter = new AnnotationDetector.TypeReporter() {
 
-            @Override
-            public void reportTypeAnnotation(Class<? extends Annotation> aClass, String s) {
-                try {
-                    if (!getAbstractClass().isAssignableFrom(Class.forName(s)))
-                        throw new IllegalArgumentException("Classes that uses @Condition annotation should extend Abstract Condition!");
+            AnnotationDetector.TypeReporter reporter = new AnnotationDetector.TypeReporter() {
 
-                    String name = getName(Class.forName(s));
-                    getAbstractClassMap().put(name, (Class<AbstractClass>) Class.forName(s));
+                @Override
+                public void reportTypeAnnotation(Class<? extends Annotation> aClass, String s)  {
+                    try {
+                        if (!getAbstractClass().isAssignableFrom(Class.forName(s)))
+                            throw new AnalyzerDetectorException("Classes that uses your annotation  should extend AbstractObject!");
+                    } catch (ClassNotFoundException e) {
+                    }
 
-                } catch (ClassNotFoundException e) {
-                } catch (IllegalAccessException e) {
-                } catch (InvocationTargetException e) {
+
+                    String name = null;
+                    try {
+                        name = getName(Class.forName(s));
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        getAbstractClassMap().put(name, (Class<AbstractObject>) Class.forName(s));
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
                 }
-            }
 
-            @SuppressWarnings("unchecked")
-            @Override
-            public Class<? extends Annotation>[] annotations() {
-                return new Class[]{getAnnotationClass()};
-            }
+                @SuppressWarnings("unchecked")
+                @Override
+                public Class<? extends Annotation>[] annotations() {
+                    return new Class[]{getAnnotationClass()};
+                }
 
-        };
+            };
+
         final AnnotationDetector cf = new AnnotationDetector(reporter);
         try {
-            if(s==null)
-            cf.detect();
+            if (s == null)
+                cf.detect();
             else cf.detect(s);
-        } catch (IOException e) {
+        }catch (Exception e){
+            throw new AnalyzerDetectorException("Analyzer annotation detection failed.",e);
         }
+
 
     }
 
-    default AbstractClass createInstanceOf(AnalyzerElement element,List<AbstractClass> subobjs) {
+    default AbstractObject createInstanceOf(AnalyzerElement element,List<AbstractObject> subobjs) throws AbstractObjectInstantiationFailureException, DefinedRestrictionException {
         String name=element.getName();
         Map<String, String> map=element.getAttributes();
         List<String> superElements=element.getSuperElementNames();
         Map<Integer, List<String>> subElements=element.getNamesOfSubElements();
 
-        if (!getAbstractClassMap().containsKey(name)) throw new IllegalArgumentException("Unknown operation: " + name);
+        if (!getAbstractClassMap().containsKey(name)) throw new AbstractObjectInstantiationFailureException("Unknown operation: " + name);
 
         if (!acceptAnnotationOn(getAnnotationFields(name), this.getAbstractClassMap().get(name), element,this))
-            throw new IllegalArgumentException("The annotation was rejected!");
+            throw new DefinedRestrictionException("The annotation was rejected!");
 
         Object cond0 = null;
         try {
             cond0 = getAbstractClassMap().get(name).newInstance();
         } catch (InstantiationException e) {
-            e.printStackTrace();
+            throw new AbstractObjectInstantiationFailureException("Cannot instantiate AbstractObject.",e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();
+            throw new AbstractObjectInstantiationFailureException("Access modifiers prevented instantiation of AbstractObject.",e);
         }
-        ((AbstractClass) cond0).setSubObjects(subobjs);
+        ((AbstractObject) cond0).setSubObjects(subobjs);
 
             handleRestrictionsDynamically(getAbstractClassMap().get(name),element,(AbstractObject)cond0);
 
@@ -96,16 +110,17 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         AnalyzerElementSetter.inject(cond0,element);
         handleAttributeAnnotations(name,cond0, map);
 
-        return (AbstractClass) cond0;
+        return (AbstractObject) cond0;
     }
 
-    Map<String, Class<AbstractClass>> getAbstractClassMap();
+    Map<String, Class<AbstractObject>> getAbstractClassMap();
 
     boolean acceptAnnotationOn(Map annotation,Class<?> class0, AnalyzerElement element,Analyzer analyzer);
 
-    Class<Anno> getAnnotationClass();
+    @SuppressWarnings("Annotation should have RetentionPolicy.RUNTIME and its @Target should be ElementType.TYPE.")
+    Class<Annotation> getAnnotationClass();
 
-    Class<AbstractClass> getAbstractClass();
+    Class<AbstractObject> getAbstractClass();
 
     private String getName(Class<?> class0) throws InvocationTargetException, IllegalAccessException {
         Annotation annotation = class0.getDeclaredAnnotation(getAnnotationClass());
@@ -115,7 +130,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                 return (String) returner;
             }
         }
-        throw new IllegalArgumentException("Your annotation should have a 'name' field!");
+        throw new AnalyzerDetectorException("Your annotation should have a 'name' field!");
     }
 
     private void handleAttributeAnnotations(String name,Object o, Map<String, String> attriblites) {
@@ -139,7 +154,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         for (Parameter p : m.getParameters()) {
             if (p.isAnnotationPresent(AttributeParam.class)) {
                 if (attriblites.get(p.getAnnotation(AttributeParam.class).value()) == null && p.getAnnotation(AttributeParam.class).required())
-                    throw new IllegalArgumentException("Attribute " + p.getAnnotation(AttributeParam.class).value() + " cannot be found, while it is required for method: " + m.getName() + " in class: " + o.getClass());
+                    throw new AnalyzerAttributeException("Attribute " + p.getAnnotation(AttributeParam.class).value() + " cannot be found, while it is required for method: " + m.getName() + " in class: " + o.getClass());
                 params[i] = attriblites.get(p.getAnnotation(AttributeParam.class).value());
             }
             i++;
@@ -162,7 +177,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                     for (Parameter p : m.getParameters()) {
                         if (p.isAnnotationPresent(AttributeParam.class)) {
                             if (attriblites.get(p.getAnnotation(AttributeParam.class).value()) == null && p.getAnnotation(AttributeParam.class).required())
-                                throw new IllegalArgumentException("Attribute " + p.getAnnotation(AttributeParam.class).value() + " cannot be found, while it is required for method: " + m.getName() + " in a TypeBridge!");
+                                throw new AnalyzerAttributeException("Attribute " + p.getAnnotation(AttributeParam.class).value() + " cannot be found, while it is required for method: " + m.getName() + " in a TypeBridge!");
                             params[i] = attriblites.get(p.getAnnotation(AttributeParam.class).value());
                         }
                         i++;
@@ -234,7 +249,7 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
         return null;
     }
 
-     default AbstractClass getBrideType(AnalyzerElement element, List<AbstractObject> subobjs){
+     default AbstractObject getBrideType(AnalyzerElement element, List<AbstractObject> subobjs){
         AnalyzerElementSetter.injectStatic(getAbstractClass(),element);
         ContentSetter.injectStatic(getAbstractClass(),element);
          Map<String,String> attrs=element.getAttributes();
@@ -247,17 +262,17 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                     try {
                         cond0 = m.invoke(null,subobjs.toArray());
                     } catch (IllegalAccessException e) {
-                        throw new IllegalArgumentException("Method should be public static: "+bridgeName);
+                        throw new AbstractObjectInstantiationFailureException("Method should be public static: "+bridgeName,e);
                     } catch (InvocationTargetException e) {
-                        throw new IllegalArgumentException("Method should be public static: "+bridgeName);
+                        throw new AbstractObjectInstantiationFailureException("Method should be public static: "+bridgeName,e);
                     }
                     handleRestrictionsDynamically(m,element);
                    handleBridgeAttributes(bridgeName,attrs);
-                    return (AbstractClass) cond0;
+                    return (AbstractObject) cond0;
                 }
             }
         }
-        throw new IllegalArgumentException("Something did not go as planned at TypeBridge: "+bridgeName);
+        throw new AbstractObjectInstantiationFailureException("Something did not go as planned at TypeBridge: "+bridgeName);
     }
 
     private static boolean isRestrictionCorrect(RestrictionAnnotation annotation){
@@ -273,14 +288,15 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                 RestrictionHandler handler;
                 try {
                     handler = ra.value().newInstance();
-                    if(handler.accept(element,o,this,anno)){
-                        return;
+                    if(!handler.accept(element,o,this,anno)) {
+                        if (handler.getMessage(anno) != null)
+                            throw new DefinedRestrictionException(handler.getMessage(anno)+ " - in class "+class0.getName()+".");
+                            else throw new DefinedRestrictionException(anno.annotationType().getAnnotation(RestrictionAnnotation.class).defaultMessage()+ " - in class "+class0.getName()+".");
                     }
-                    else throw new IllegalArgumentException(ra.message()+" caused by Restriction: "+anno.annotationType()+" in class "+class0.getName());
                 } catch (InstantiationException e) {
-                    e.printStackTrace();
+                    throw new DefinedRestrictionException("Exception when trying to instantiate RestrictionHandler: "+anno.annotationType().getAnnotation(RestrictionAnnotation.class).value().getName()+".");
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new DefinedRestrictionException("Cannot access accept() method in RestrictionHandler: "+anno.annotationType().getAnnotation(RestrictionAnnotation.class).value().getName()+".");
                 }
 
             }
@@ -295,18 +311,17 @@ public interface Analyzer<Anno extends Annotation, AbstractClass extends Abstrac
                 RestrictionHandler handler;
                 try {
                     handler = ra.value().newInstance();
-                    if(handler.accept(element,null,this,anno)){
-                        return;
-                    }
-                    else throw new IllegalArgumentException(ra.message()+" caused by Restriction: "+anno.annotationType()+" in "+class0.getDeclaringClass().getName()+" / "+class0.getName()+" method!" );
+                    if(!handler.accept(element,null,this,anno))
+                        throw new DefinedRestrictionException(handler.getMessage(anno)+ " - in method "+class0.getName()+" of "+getAbstractClass().getName()+".");
+                    else throw new DefinedRestrictionException(anno.annotationType().getAnnotation(RestrictionAnnotation.class).defaultMessage()+ " - in method "+class0.getName()+" of "+getAbstractClass().getName()+".");
                 } catch (InstantiationException e) {
-                    e.printStackTrace();
+                    throw new DefinedRestrictionException("Exception when trying to instantiate RestrictionHandler: "+anno.annotationType().getAnnotation(RestrictionAnnotation.class).value().getName()+".");
                 } catch (IllegalAccessException e) {
-                    e.printStackTrace();
+                    throw new DefinedRestrictionException("Cannot access accept() method in RestrictionHandler: "+anno.annotationType().getAnnotation(RestrictionAnnotation.class).value().getName()+".");
                 }
 
             }
-            else throw new IllegalArgumentException("You have to implement the RestrictionHandler interface into your restriction's body: "+ra.value());
+            else throw new DefinedRestrictionException("You have to implement the RestrictionHandler interface into your restriction's body: "+ra.value());
         }
     }
 

@@ -30,9 +30,9 @@ public class AnalyzerBuilder {
     public Analyzer build(){
 
         return new Analyzer() {
-            public Map<String,Class> map=new HashMap<>();
+            public Map<String,Class<AbstractObject>> map=new HashMap<>();
             @Override
-            public Map<String, Class> getAbstractClassMap() {
+            public Map<String, Class<AbstractObject>> getAbstractClassMap() {
                 return map;
             }
 

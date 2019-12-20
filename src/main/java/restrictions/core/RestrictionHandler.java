@@ -17,4 +17,8 @@ public interface RestrictionHandler {
      */
     boolean accept(AnalyzerElement element, Object o, Analyzer analyzer,Annotation annotation);
 
+    default String getMessage(Annotation annotation){
+        return null;
+    }
+
 }

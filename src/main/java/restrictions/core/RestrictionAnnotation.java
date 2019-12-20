@@ -8,5 +8,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RestrictionAnnotation {
     Class<? extends RestrictionHandler> value();
-    String message() default "Failed instantiation of element!";
+    String defaultMessage() default "Failed instantiation of element!";
 }
