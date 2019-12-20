@@ -16,7 +16,7 @@ import restrictions.core.RestrictionHandler;
 import eu.infomas.annotation.AnnotationDetector;
 import parsers.classes.AnalyzerElement;
 
-import java.lang.annotation.Annotation;
+import java.lang.annotation.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -35,6 +35,7 @@ public interface Analyzer  {
 
     private void annotationDetect(String s) throws AnalyzerDetectorException {
 
+        checkAnnotationClass();
         registerTypeBridges();
 
 
@@ -113,6 +114,15 @@ public interface Analyzer  {
         return (AbstractObject) cond0;
     }
 
+    private void checkAnnotationClass(){
+        if(!getAnnotationClass().isAnnotation()) throw new AnalyzerDetectorException("getAnnotationClass() should return an annotation.");
+        if(getAnnotationClass().isAnnotationPresent(Target.class)){
+            //if(!(getAnnotationClass().getAnnotation(Target.class).value().equals(new ElementType[]{ElementType.TYPE})))throw new AnalyzerDetectorException("Your annotation should have a @Target annotation with ElementType.TYPE as its value().");
+        }else throw new AnalyzerDetectorException("Your annotation should have a @Target annotation.");
+        if(getAnnotationClass().isAnnotationPresent(Retention.class)){
+            if(!(getAnnotationClass().getAnnotation(Retention.class).value().equals( RetentionPolicy.RUNTIME)))throw new AnalyzerDetectorException("Your annotation should have a @Retention annotation with RetentionPolicy.RUNTIME as its value().");
+        }else throw new AnalyzerDetectorException("Your annotation should have a @Retention annotation.");
+    }
     Map<String, Class<AbstractObject>> getAbstractClassMap();
 
     boolean acceptAnnotationOn(Map annotation,Class<?> class0, AnalyzerElement element,Analyzer analyzer);
