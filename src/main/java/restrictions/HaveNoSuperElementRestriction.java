@@ -17,5 +17,8 @@ public class HaveNoSuperElementRestriction implements RestrictionHandler {
         return true;
     }
 
-
+    @Override
+    public String getMessage(Annotation annotation) {
+        return ((HaveNoSuperElement)annotation).value()+" tag should not be super element of this!";
+    }
 }

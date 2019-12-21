@@ -11,7 +11,6 @@ import java.lang.annotation.*;
 @RestrictionAnnotation(value = HasSuperElementRestriction.class)
 public @interface HasSuperElement {
     String value();
-    String message() default "Should have super element!";
 
 
     @Retention(RetentionPolicy.RUNTIME)

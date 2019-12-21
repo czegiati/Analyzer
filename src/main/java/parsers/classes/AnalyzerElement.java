@@ -1,6 +1,5 @@
 package parsers.classes;
 
-import org.jetbrains.annotations.Contract;
 
 import java.util.ArrayList;
 import java.util.HashMap;

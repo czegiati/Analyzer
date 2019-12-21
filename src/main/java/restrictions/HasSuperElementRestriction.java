@@ -19,6 +19,6 @@ public class HasSuperElementRestriction implements RestrictionHandler {
 
     @Override
     public String getMessage(Annotation annotation) {
-        return ((HasSuperElement)annotation).message();
+        return ((HasSuperElement)annotation).value()+" should be super element of this!";
     }
 }
